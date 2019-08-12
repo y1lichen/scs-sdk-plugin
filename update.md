@@ -1,4 +1,10 @@
 # Update log
+
+## Rev 10 Update 1.1 (fixes)
+- fix code ... documentation says `Local\SCSTelemetry` code says still the old location. Now the **shared memory files** is **`Local\SCSTelemetry`** like the `readme.md` tells.
+
+
+
 ## Rev 10 Update 1
 - change `DefaultUpdateInterval` from 25ms to 100ms of the Shared Memory File refresh timer to avoid crashed until i (or someone) have a better solution (see issue #38)
 - added value `SdkActive` that could create problems if not update both parts of the project. It's only a byte/bool but on the first place in the shared memory -> the update function won't work when not updated both without small fix (offset + 1, 2 or 3 at the begin)
