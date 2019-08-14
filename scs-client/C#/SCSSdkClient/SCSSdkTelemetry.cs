@@ -36,7 +36,6 @@ namespace SCSSdkClient {
 
 
         private SharedMemory SharedMemory;
-        private bool wasFinishingJob;
 
         private bool wasOnJob;
         private bool wasConnected;
@@ -66,7 +65,6 @@ namespace SCSSdkClient {
         public event TelemetryData Data;
 
         public event EventHandler JobStarted;
-        public event EventHandler JobFinished;
         public event EventHandler JobCancelled;
         public event EventHandler JobDelivered;
         public event EventHandler Fined;
@@ -134,14 +132,7 @@ namespace SCSSdkClient {
             var time = scsTelemetry.Timestamp;
             Data?.Invoke(scsTelemetry, time != lastTime);
             //TODO: make it nicer thats a lot of code for such less work
-            // Job close & start events
-            if (wasFinishingJob != scsTelemetry.SpecialEventsValues.JobFinished) {
-                wasFinishingJob = scsTelemetry.SpecialEventsValues.JobFinished;
-                if (scsTelemetry.SpecialEventsValues.JobFinished) {
-                    JobFinished?.Invoke(this, new EventArgs());
-                }
-            }
-
+            // Job start event
             if (wasOnJob != scsTelemetry.SpecialEventsValues.OnJob) {
                 wasOnJob = scsTelemetry.SpecialEventsValues.OnJob;
                 if (scsTelemetry.SpecialEventsValues.OnJob) {
