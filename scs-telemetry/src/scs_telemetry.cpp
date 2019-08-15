@@ -403,31 +403,35 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
         telem_ptr->truck_b.cruiseControl = telem_ptr->truck_f.cruiseControlSpeed > 0;
 
         //TODO: better way for that mess here
-        if (telem_ptr->special_b.jobFinished) {
-            clear_job_ticker++;
+		if (telem_ptr->special_b.jobFinished) {
+			clear_job_ticker++;
 
-            if (clear_job_ticker > 10) {
-                set_job_values_zero();
-                telem_ptr->special_b.jobFinished = false;
-            }
-        }
+			if (telem_ptr->special_b.jobCancelled) {
+				clear_cancelled_ticker++;
 
-        if (telem_ptr->special_b.jobCancelled) {
-            clear_cancelled_ticker++;
+				if (clear_cancelled_ticker > 10) {
+					set_job_values_zero();
+					telem_ptr->special_b.jobCancelled = false;
+					telem_ptr->special_b.jobFinished = false;
+				}
+			}
+			else if (telem_ptr->special_b.jobDelivered) {
+				clear_delivered_ticker++;
 
-            if (clear_cancelled_ticker > 10) {
-                set_job_values_zero();
-                telem_ptr->special_b.jobCancelled = false;
-            }
-        }
-        if (telem_ptr->special_b.jobDelivered) {
-            clear_delivered_ticker++;
-
-            if (clear_delivered_ticker > 10) {
-                set_job_values_zero();
-                telem_ptr->special_b.jobDelivered = false;
-            }
-        }
+				if (clear_delivered_ticker > 10) {
+					set_job_values_zero();
+					telem_ptr->special_b.jobDelivered = false;
+					telem_ptr->special_b.jobFinished = false;
+				}
+			}
+			else {
+				if (clear_job_ticker > 3) {
+					clear_job_ticker = 0;
+					telem_ptr->special_b.jobCancelled = true;
+				}
+			}
+		}
+		
         if (telem_ptr->special_b.fined) {
             clear_fined_ticker++;
 

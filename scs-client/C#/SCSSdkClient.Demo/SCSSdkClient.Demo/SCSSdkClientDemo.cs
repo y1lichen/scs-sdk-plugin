@@ -16,7 +16,6 @@ namespace SCSSdkClient.Demo {
             InitializeComponent();
             Telemetry = new SCSSdkTelemetry();
             Telemetry.Data += Telemetry_Data;
-            Telemetry.JobFinished += TelemetryOnJobFinished;
             Telemetry.JobStarted += TelemetryOnJobStarted;
 
             Telemetry.JobCancelled += TelemetryJobCancelled;
@@ -39,9 +38,6 @@ namespace SCSSdkClient.Demo {
 
             l_updateRate.Text = Telemetry.UpdateInterval + "ms";
         }
-
-        private void TelemetryOnJobFinished(object sender, EventArgs args) =>
-            MessageBox.Show("Job finished.");
 
         private void TelemetryOnJobStarted(object sender, EventArgs e) =>
             MessageBox.Show("Just started job OR loaded game with active.");
