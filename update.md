@@ -3,6 +3,8 @@
 ## Rev 10 Update 1.1 (fixes)
 - fix code ... documentation says `Local\SCSTelemetry` code says still the old location. Now the **shared memory files** is **`Local\SCSTelemetry`** like the `readme.md` tells.
 - update sdk from 1.9 to 1.10 for the other compiler settings in the solution file (thanks to kniffen #47)
+- fix for external contracts (thanks danielalmeida1481 #48)
+- also remove redundant event `jobFinished`, because it is fired together with `jobDelivered` or `jobCancelled`. The value in c++ and shared memory is still there, but no functionality for other projects for the moment.
 
 
 
