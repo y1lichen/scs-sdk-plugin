@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using SCSSdkClient.Object;
@@ -24,6 +25,7 @@ namespace SCSSdkClient.Demo {
             Telemetry.Tollgate += TelemetryTollgate;
             Telemetry.Ferry += TelemetryFerry;
             Telemetry.Train += TelemetryTrain;
+            Telemetry.Refuel += TelemetryRefuel;
 
 
             if (Telemetry.Error != null) {
@@ -59,6 +61,7 @@ namespace SCSSdkClient.Demo {
 
         private void TelemetryTrain(object sender, EventArgs e) =>
             MessageBox.Show("Train");
+        private void TelemetryRefuel(object sender, EventArgs e) {}
 
         private void Telemetry_Data(SCSTelemetry data, bool updated) {
             try {
@@ -112,6 +115,9 @@ namespace SCSSdkClient.Demo {
                 navigation.Text = JsonConvert.SerializeObject(data.NavigationValues, Formatting.Indented);
                 substances.Text = JsonConvert.SerializeObject(data.Substances, Formatting.Indented);
                 gameplayevent.Text = JsonConvert.SerializeObject(data.GamePlay, Formatting.Indented);
+                rtb_fuel.Text = data.TruckValues.CurrentValues.DashboardValues.FuelValue.Amount + " "+ data.SpecialEventsValues.Refuel ;
+                rtb_fuel.BackColor = data.SpecialEventsValues.Refuel ? Color.Green : Color.Red;
+
             } catch (Exception ex) {
                 // ignored atm i found no proper way to shut the telemetry down and down call this anymore when this or another thing is already disposed
                 Console.WriteLine("Telemetry was closed: " + ex);

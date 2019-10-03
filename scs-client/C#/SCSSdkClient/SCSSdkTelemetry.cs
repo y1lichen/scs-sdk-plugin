@@ -46,6 +46,7 @@ namespace SCSSdkClient {
         private bool ferry;
         private bool train;
         private bool paused;
+        private bool refuel;
 
 
         public SCSSdkTelemetry() => Setup(DefaultSharedMemoryMap, DefaultUpdateInterval);
@@ -71,6 +72,7 @@ namespace SCSSdkClient {
         public event EventHandler Tollgate;
         public event EventHandler Ferry;
         public event EventHandler Train;
+        public event EventHandler Refuel;
 
         public void pause() => _updateTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
@@ -180,6 +182,13 @@ namespace SCSSdkClient {
                 train = scsTelemetry.SpecialEventsValues.Train;
                 if (scsTelemetry.SpecialEventsValues.Train) {
                     Train?.Invoke(this, new EventArgs());
+                }
+            }
+
+            if (refuel != scsTelemetry.SpecialEventsValues.Refuel) {
+                refuel = scsTelemetry.SpecialEventsValues.Refuel;
+                if (scsTelemetry.SpecialEventsValues.Refuel) {
+                    Refuel?.Invoke(this, new EventArgs());
                 }
             }
 

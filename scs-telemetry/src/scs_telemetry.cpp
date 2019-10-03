@@ -367,6 +367,11 @@ void set_trailer_values_zero(unsigned int trailer_id = 0) {
     new(&telem_ptr->trailer.trailer[trailer_id]) scsTrailer_t();
 }
 
+// Last Fuel Value (set to a high value to avoid to trigger the event directly on start)
+static auto fuel_ticker = 0;
+static auto fuel_ticker2 = 0;
+static auto last_fuel_value = 99999;
+static auto current_fuel_value = 0;
 // Function: telemetry_frame_start
 // Register telemetry values
 SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* const event_info,
@@ -401,6 +406,36 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
 
         // Do a non-convential periodic update of this field:
         telem_ptr->truck_b.cruiseControl = telem_ptr->truck_f.cruiseControlSpeed > 0;
+
+        // check fuel value
+        current_fuel_value = telem_ptr->truck_f.fuel;
+        if( current_fuel_value > last_fuel_value) {            
+               fuel_ticker2 = 0;
+               telem_ptr->special_b.refuel = true;
+           }else if( current_fuel_value < last_fuel_value) {
+               fuel_ticker2 = 0;
+               telem_ptr->special_b.refuel = false;
+           }
+
+        // update last value every few ticks (refuel rate is not constant and the plugin side did check every 25 ms so to try a
+        // constant refuel event for the whole time a few strange things :D atm
+        if(fuel_ticker>10) {
+            fuel_ticker=0;
+
+            if( current_fuel_value == last_fuel_value ) {
+                fuel_ticker2++;
+            }else {
+                fuel_ticker2 = 0;
+            }
+            if(fuel_ticker2>=5) {
+               fuel_ticker2 = 0;
+               telem_ptr->special_b.refuel = false;
+            }
+
+           last_fuel_value = current_fuel_value;            
+        } 
+            fuel_ticker++;
+       
 
         //TODO: better way for that mess here
 		if (telem_ptr->special_b.jobFinished) {

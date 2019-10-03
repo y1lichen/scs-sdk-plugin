@@ -53,6 +53,7 @@
             this.substances = new System.Windows.Forms.RichTextBox();
             this.tabPage8 = new System.Windows.Forms.TabPage();
             this.gameplayevent = new System.Windows.Forms.RichTextBox();
+            this.rtb_fuel = new System.Windows.Forms.RichTextBox();
             this.hgf.SuspendLayout();
             this.tabAbout.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -86,6 +87,7 @@
             // 
             // tabAbout
             // 
+            this.tabAbout.Controls.Add(this.rtb_fuel);
             this.tabAbout.Controls.Add(this.statusStrip1);
             this.tabAbout.Controls.Add(this.lbGeneral);
             this.tabAbout.Controls.Add(this.richTextBox1);
@@ -309,6 +311,17 @@
             this.gameplayevent.TabIndex = 6;
             this.gameplayevent.Text = "";
             // 
+            // rtb_fuel
+            // 
+            this.rtb_fuel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtb_fuel.Location = new System.Drawing.Point(20, 512);
+            this.rtb_fuel.Name = "rtb_fuel";
+            this.rtb_fuel.Size = new System.Drawing.Size(549, 36);
+            this.rtb_fuel.TabIndex = 4;
+            this.rtb_fuel.Text = "";
+            // 
             // SCSSdkClientDemo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -361,6 +374,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel l_updateRate;
+        private System.Windows.Forms.RichTextBox rtb_fuel;
     }
 }
 

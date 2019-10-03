@@ -1,24 +1,28 @@
 # Update log
 
+## Rev 10 Update 2
+
+- Add refuel event (based on last fuel value and current fuel value).
+
 ## Rev 10 Update 1.1 (fixes)
+
 - fix code ... documentation says `Local\SCSTelemetry` code says still the old location. Now the **shared memory files** is **`Local\SCSTelemetry`** like the `readme.md` tells.
 - update sdk from 1.9 to 1.10 for the other compiler settings in the solution file (thanks to kniffen #47)
 - fix for external contracts (thanks danielalmeida1481 #48)
 - also remove redundant event `jobFinished`, because it is fired together with `jobDelivered` or `jobCancelled`. The value in c++ and shared memory is still there, but no functionality for other projects for the moment.
 
+## Rev 10 Update 1
 
-
-## Rev 10 Update 1 
 - change `DefaultUpdateInterval` from 25ms to 100ms of the Shared Memory File refresh timer to avoid crashed until i (or someone) have a better solution (see issue #38)
 - added value `SdkActive` that could create problems if not update both parts of the project. It's only a byte/bool but on the first place in the shared memory -> the update function won't work when not updated both without small fix (offset + 1, 2 or 3 at the begin)
 - c# library will going in `paused` state when `SdkActive == false`. Means that the update rate of the shared memory is now 1 second and not higher, get back to high update rate when sdk is active again
 - values are now reset when the game is closed correct (see #39). Crashes or kills of the game won't reset the values
-- c# demo now has a status label that shows the current update rate of the sdk 
-
-
+- c# demo now has a status label that shows the current update rate of the sdk
 
 ## Rev 10 (Game Version 1.35)
+
 A lot changes here: update to SDK Version 1.10
+
 - shared memory files size increased (16kb to 32kb), because it can handle up to 10 trailers... that needs already a lot of space
 - structure of the shared memory file changed a lot through new order and new attributes
 - implement gameplay events from the api
@@ -29,4 +33,4 @@ A lot changes here: update to SDK Version 1.10
 - demo was updated but it's not working good with the 10 trailer updated. Avoid to open tje trailer page or you need to restart the demo. It will freeze the ui. (To high update rate of that mutch text, when game is paused ui will also stop freezing) 
 - new events to register (tollgate, train, ferry, fine, job delivered,... ) and some removed (trailer connected, disconnected) but you could create your own connected/disconnected listener if you need them again
 - a lot of other small thinks. i will start early to write update notes the next time (hopefuly)
-- some documentation for new functions, values etc.   
+- some documentation for new functions, values etc.

@@ -43,6 +43,7 @@ bool check_max_version(unsigned const int min_ets2, unsigned const int min_ats);
 enum configType { substances, controls, hshifter, truck, trailer, job };
 enum gameplayType { cancelled, delivered, fined, tollgate, ferry, train };
 void log_line(scs_log_type_t type, const char* text, ...);
+
 typedef struct scsTrailer_s { // Size: 1528
 	//----- START OF FIRST ZONE AT OFFSET 0 -----//
 	struct {
@@ -504,18 +505,17 @@ typedef struct scsTelemetryMap_s
 
 	struct {
 		bool onJob;
-		bool jobFinished;
-	
- 
+		bool jobFinished; 
 		bool jobCancelled;
 		bool jobDelivered;
 		bool fined;
 		bool tollgate;
 		bool ferry;
 		bool train;
+		bool refuel;
 	}special_b;
 
-	char buffer_special[92];
+	char buffer_special[91];
 	//----- END OF 12TH ZONE AT OFFSET 4399 -----//
 
 	//----- START OF 13TH ZONE AT OFFSET 4400 -----//

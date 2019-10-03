@@ -349,6 +349,8 @@ namespace SCSSdkClient {
             retData.SpecialEventsValues.Ferry = GetBool();
             retData.SpecialEventsValues.Train = GetBool();
 
+            retData.SpecialEventsValues.Refuel = GetBool();
+
             NextOffsetArea();
 
             #endregion
