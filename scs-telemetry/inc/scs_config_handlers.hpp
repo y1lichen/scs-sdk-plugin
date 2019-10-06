@@ -117,6 +117,7 @@ scsConfigHandle(Job, JobMarket);
 scsConfigHandle(Job, SpecialJob);
 scsConfigHandle(Job, UnitCount);
 scsConfigHandle(Job, UnitMass);
+scsConfigHandle(Job, PlannedDistanceKm);
 
 bool handleCfg(const scs_named_value_t* info,const configType type, const unsigned int trailer_id);
 #endif

@@ -196,6 +196,7 @@ typedef struct scsTelemetryMap_s
 		unsigned int time_abs_delivery;
 		unsigned int maxTrailerCount;
 		unsigned int unitCount;
+        unsigned int plannedDistanceKm;
 	}config_ui;
 
 	// Contains trailer/truck channel unsigned integers
@@ -212,7 +213,7 @@ typedef struct scsTelemetryMap_s
 	struct {
 		unsigned int jobDeliveredDeliveryTime;
 	}gameplay_ui;
-	char buffer_ui[60];
+	char buffer_ui[56];
 	//----- END OF SECOND ZONE AT OFFSET 499 -----//
 
 	//----- START OF Third ZONE AT OFFSET 500 -----//

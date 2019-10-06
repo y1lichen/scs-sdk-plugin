@@ -1,5 +1,12 @@
 # Update log
 
+## Rev 10 Update 3 (Game Version 1.36, small Shared Memory changes)
+
+update to SDK Version 1.11
+
+- Added PlannedDistanceKm value (Unsigned Integer Value)
+- **Note to the shared Memory:** zone 2 is modified (Unsigned Integer, Config Values). -> One new value was added (plannedDistanceKm). The following unsigned integer values has so a new offset. Other Zones shouldn't change.
+
 ## Rev 10 Update 2
 
 - Add refuel event (based on last fuel value and current fuel value).

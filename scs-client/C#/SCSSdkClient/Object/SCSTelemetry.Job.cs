@@ -35,6 +35,13 @@ namespace SCSSdkClient.Object {
             public bool SpecialJob { get; internal set; }
             public JobMarket Market { get; internal set; }
 
+            /// <summary>
+            ///     Planned job distance in simulated kilometers.
+            ///     Does not include distance driven using ferry.
+            /// </summary>
+            public uint PlannedDistanceKm {get;internal set;}
+
+
 
             /// <summary>
             ///     Cargo values of an job

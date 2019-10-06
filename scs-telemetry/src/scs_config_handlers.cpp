@@ -113,7 +113,8 @@ const scsConfigHandler_t job_config[] = {
         {SCS_TELEMETRY_CONFIG_ATTRIBUTE_job_market, handleJobJobMarket},
         {SCS_TELEMETRY_CONFIG_ATTRIBUTE_special_job, handleJobSpecialJob},
         {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_count, handleJobUnitCount},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_mass, handleJobUnitMass}
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_mass, handleJobUnitMass},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_planned_distance_km, handleJobPlannedDistanceKm}
 };
 
 // const: length_configs
@@ -620,5 +621,9 @@ scsConfigHandle(Job, UnitCount) {
 
 scsConfigHandle(Job, UnitMass) {
     telem_ptr->config_f.unitMass = current->value.value_float.value;
+}
+
+scsConfigHandle(Job,PlannedDistanceKm) {
+    telem_ptr->config_ui.plannedDistanceKm = current->value.value_u32.value;
 }
 #pragma endregion All handler of the id job
