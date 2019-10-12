@@ -71,6 +71,7 @@ namespace SCSSdkClient {
             retData.JobValues.DeliveryTime = GetUint();
             retData.MaxTrailerCount = GetUint();
             retData.JobValues.CargoValues.UnitCount = GetUint();
+            retData.JobValues.PlannedDistanceKm = GetUint();
 
 
             retData.TruckValues.CurrentValues.MotorValues.GearValues.HShifterSlot = GetUint();

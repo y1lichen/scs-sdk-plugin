@@ -5,7 +5,7 @@
 #include "scs-telemetry-common.hpp"
 #include "sharedmemory.hpp"
 
-#include "log.hpp"
+#include "log.hpp" 
 
 extern SharedMemory* telem_mem;
 extern scsTelemetryMap_t* telem_ptr;
@@ -623,7 +623,7 @@ scsConfigHandle(Job, UnitMass) {
     telem_ptr->config_f.unitMass = current->value.value_float.value;
 }
 
-scsConfigHandle(Job,PlannedDistanceKm) {
+scsConfigHandle(Job,PlannedDistanceKm) { 
     telem_ptr->config_ui.plannedDistanceKm = current->value.value_u32.value;
 }
 #pragma endregion All handler of the id job
