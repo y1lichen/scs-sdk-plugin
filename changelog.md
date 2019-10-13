@@ -1,4 +1,10 @@
-# Update log
+# Changelog
+
+## Rev 10 Update 4
+
+- Update `Readme.md`
+- Change `update.md` to `changelog.md`
+- Add `refuel end` event and change `refuel` to `refuel start`
 
 ## Rev 10 Update 3 (Game Version 1.36, small Shared Memory changes)
 

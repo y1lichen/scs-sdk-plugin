@@ -37,7 +37,7 @@ This plug-in stores it's data inside a Memory Mapped File, or "Shared Memory". T
 
 ### Rev Numbers
 
-Rev Numbers shows big changes on the shared memory and sometimes on the C# object. That means Rev 10 wont work with Rev 9. Doesn't matter which side is not updated. Sub Versions that you can see in update.md should work with small errors or completely without. The C# object is mostly not changed. Only if needed, because of new values (most of the cases) or structure changes (less the case). If this occurs i will notice that. (See update.md. If you directly access the shared memory you will find an overview about the changes here.)
+Rev Numbers shows big changes on the shared memory and sometimes on the C# object. That means Rev 10 wont work with Rev 9. Doesn't matter which side is not updated. Sub Versions that you can see in changelog.md should work with small errors or completely without. The C# object is mostly not changed. Only if needed, because of new values (most of the cases) or structure changes (less the case). If this occurs i will notice that. (See changelog.md. If you directly access the shared memory you will find an overview about the changes here.)
 
 ### Plugin for 1.36/SDK11
 
@@ -79,9 +79,12 @@ The following telemetry fields are supported, structure is similar the C# object
 
 Edit: for better overview it is now (ETS2 SDK/ATS SDK/Game Version). I added the game version, because it is most (every) time the same and most of you doesn't now the specific Game SDK Version.
 
+Changes are marked with the <del>deleted</del> Tag.
+New stuff is marked with the <ins>inserted</ins> Tag.
+
 <pre>
 
-<strong>Basic Game Independent Values</strong>:
+<strong>Game Values (V.1.10.4)</strong>:
 │    ├── Telemetry Timestamp (<mark>not the in-game time</mark>, only for usage in code, see documentation for more information #todo add link)
 │    ├── Paused, game state
 │    ├── SCSGame identifier as enum, currently ets2/ats/unknown
@@ -275,7 +278,7 @@ Edit: for better overview it is now (ETS2 SDK/ATS SDK/Game Version). I added the
 │    │    ├── Company Source Id (code)
 │    │    ├── Company Source
 │    │    ├── Income
-│    │    ├── <ins>Planned Distance Km (1.15/1.02/1.36)</ins>
+│    │    ├── Planned Distance Km (1.15/1.02/1.36)
 │    │    └── <strong>Cargo Values</strong>:
 │    │         ├── Mass
 │    │         ├── Name (code)
@@ -306,7 +309,8 @@ Edit: for better overview it is now (ETS2 SDK/ATS SDK/Game Version). I added the
 │    │    ├── Tollgate (1.14/1.01/1.35)
 │    │    ├── Ferry (1.14/1.01/1.35)
 │    │    ├── Train (1.14/1.01/1.35)
-│    │    └── Refuel
+│    │    ├── <del>Refuel</del> <ins>Refuel Start</ins>
+│    │    └── <ins>Refuel End</ins>
 │    └── <strong>GameplayEvents (1.14/1.01/1.35)</strong>:
 │         ├── <strong>Cancelled</strong>:
 │         │    └── Penalty

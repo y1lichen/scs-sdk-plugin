@@ -25,7 +25,7 @@ namespace SCSSdkClient.Demo {
             Telemetry.Tollgate += TelemetryTollgate;
             Telemetry.Ferry += TelemetryFerry;
             Telemetry.Train += TelemetryTrain;
-            Telemetry.Refuel += TelemetryRefuel;
+            Telemetry.RefuelStart += TelemetryRefuel;
 
 
             if (Telemetry.Error != null) {
