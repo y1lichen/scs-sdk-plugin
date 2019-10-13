@@ -356,7 +356,13 @@ There is no "sample ticker" yet. This must be done at the client side, by regula
 ## Client Implementations
 
 ### C#
+
 Actually I'm not fully happy with the actual demo. But I didn't reached my plan that works like the old one. Later I will change the current demo so that they will be a lot times better.
 
+### Javascript
+
+If you want to use javascript have a look here [Kniffen TruckSim-Telemetry](https://github.com/kniffen/TruckSim-Telemetry).
+
 ### Other
+
 For other languages you need to create/find a library that can open and read MemoryMapped files. The data storage format is binary and can be found in "scs-telemetry/inc/scs-telemetry-common.hpp". The shared memory map name is "Local\SCSTelemetry". I will add some more documentary in this header later.
