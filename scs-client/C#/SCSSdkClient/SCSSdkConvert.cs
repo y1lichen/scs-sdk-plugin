@@ -152,7 +152,7 @@ namespace SCSSdkClient {
             retData.TruckValues.CurrentValues.DamageValues.Chassis = GetFloat();
             retData.TruckValues.CurrentValues.DamageValues.WheelsAvg = GetFloat();
 
-
+       
             retData.TruckValues.CurrentValues.DashboardValues.Odometer = GetFloat();
             retData.NavigationValues.NavigationDistance = GetFloat();
             retData.NavigationValues.NavigationTime = GetFloat();
@@ -351,6 +351,7 @@ namespace SCSSdkClient {
             retData.SpecialEventsValues.Train = GetBool();
 
             retData.SpecialEventsValues.Refuel = GetBool();
+            retData.SpecialEventsValues.RefuelPayed = GetBool();
 
             NextOffsetArea();
 

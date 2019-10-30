@@ -5,6 +5,7 @@
 - Update `Readme.md`
 - Change `update.md` to `changelog.md`
 - Add `refuel end` event and change `refuel` to `refuel start`
+- ADd `refuel payed` event. Instead to fire when you stop refuel like `refuel end` it will fired when you start the engine. Also this is the event for the later coming `refuel amount` value.
 
 ## Rev 10 Update 3 (Game Version 1.36, small Shared Memory changes)
 

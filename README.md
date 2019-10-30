@@ -51,7 +51,7 @@ Note to the SDK Version: SDK 11 is not the same like the sdk version of ETS2 or 
 |1.26 and before|1.12 and before|Not Tested, could work with errors|
 |1.27 - 1.34 |1.13       |Work        |
 |1.35        |1.14       |Works, test Version|
-|1.36        |1.15       |NOT RELEASED YET|
+|1.36 (public beta)      |1.15        |Works, new Test Version|
 
 ### ATS
 
@@ -59,7 +59,7 @@ Note to the SDK Version: SDK 11 is not the same like the sdk version of ETS2 or 
 |------------|-----------|------------|
 |1.34 and before|1.0     |Should Work |
 |1.35        |1.01       |Works, test Version|
-|1.36 (public beta)        |1.02       |Works, new Test Version|
+|1.36 (public beta)      |1.02        |Works, new Test Version|
 
 ### SDK VERSION AND GAME SDK VERSION
 
@@ -310,7 +310,8 @@ New stuff is marked with the <ins>inserted</ins> Tag.
 │    │    ├── Ferry (1.14/1.01/1.35)
 │    │    ├── Train (1.14/1.01/1.35)
 │    │    ├── <del>Refuel</del> <ins>Refuel Start</ins>
-│    │    └── <ins>Refuel End</ins>
+│    │    ├── <ins>Refuel End</ins> (Fired on refuel stop)
+│    │    └── <ins>Refuel Payed</ins> (Fired on refuel end/engine start)
 │    └── <strong>GameplayEvents (1.14/1.01/1.35)</strong>:
 │         ├── <strong>Cancelled</strong>:
 │         │    └── Penalty

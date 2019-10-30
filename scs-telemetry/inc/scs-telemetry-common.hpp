@@ -515,9 +515,10 @@ typedef struct scsTelemetryMap_s
 		bool ferry;
 		bool train;
 		bool refuel;
+		bool refuelPayed;
 	}special_b;
 
-	char buffer_special[91];
+	char buffer_special[90];
 	//----- END OF 12TH ZONE AT OFFSET 4399 -----//
 
 	//----- START OF 13TH ZONE AT OFFSET 4400 -----//
