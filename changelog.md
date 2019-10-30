@@ -5,7 +5,12 @@
 - Update `Readme.md`
 - Change `update.md` to `changelog.md`
 - Add `refuel end` event and change `refuel` to `refuel start`
-- ADd `refuel payed` event. Instead to fire when you stop refuel like `refuel end` it will fired when you start the engine. Also this is the event for the later coming `refuel amount` value.
+- Add `refuel payed` event. Instead to fire when you stop refuel like `refuel end` it will fired when you start the engine. Also this is the event for the later coming `refuel amount` value.
+- Add `refuel amount`. After the `refuel payed` event this value contains the amount of fuel that was refueled between the `refuel start` and `refuel payed` event.
+  - This value could be a bit different to the in-game value, but most of the time it should be really similar. **NOTE:** if you pay in game, but didn't start the engine and start again to refuel the value in-game is the whole refuel amount and this value will only be the new refuel amount
+  - I tried to calculate the exact value. But there could be a really small difference to that value (maybe up to `+-0.1`, maybe in some special cases more. If you think it is completely wrong create an issue)
+- **Shared Memory Changes**:
+  - > Zone 4 end is modified (floats) -> `gameplas_f.refuelAmount` added, so `job_f.cargoDamage` moved 4 bytes
 
 ## Rev 10 Update 3 (Game Version 1.36, small Shared Memory changes)
 

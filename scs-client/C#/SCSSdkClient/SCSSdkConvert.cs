@@ -167,6 +167,8 @@ namespace SCSSdkClient {
             retData.GamePlay.JobDelivered.CargoDamage = GetFloat();
             retData.GamePlay.JobDelivered.DistanceKm = GetFloat();
 
+            retData.GamePlay.RefuelEvent.Amount = GetFloat();
+
             retData.JobValues.CargoValues.CargoDamage = GetFloat();
 
             NextOffsetArea();

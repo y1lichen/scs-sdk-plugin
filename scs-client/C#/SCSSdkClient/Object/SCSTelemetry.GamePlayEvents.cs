@@ -7,6 +7,9 @@ namespace SCSSdkClient.Object {
         ///     first implementation is that the values will be set, but never deleted
         ///     another change listener for bool values that will be changed will say if there are new values
         /// </summary>
+        /// <note>
+        ///     Refuel event is currently not provided by the sdk. It is provided through the fuel value.
+        /// </note>
         public class GamePlayEvents {
             public Transport FerryEvent;
             public Fined FinedEvent;
@@ -14,6 +17,7 @@ namespace SCSSdkClient.Object {
             public Delivered JobDelivered;
             public Tollgate TollgateEvent;
             public Transport TrainEvent;
+            public Refuel RefuelEvent;
 
 
             public GamePlayEvents() {
@@ -23,6 +27,7 @@ namespace SCSSdkClient.Object {
                 TollgateEvent = new Tollgate();
                 TrainEvent = new Transport();
                 FerryEvent = new Transport();
+                RefuelEvent = new Refuel();
             }
 
 
@@ -57,6 +62,10 @@ namespace SCSSdkClient.Object {
                 public string SourceName;
                 public string TargetId;
                 public string TargetName;
+            }
+
+            public class Refuel {
+                public float Amount;
             }
         }
     }

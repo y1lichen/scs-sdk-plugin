@@ -374,7 +374,8 @@ static auto fuel_ticker2 = 0;
 static auto last_fuel_value = 0;
 static auto current_fuel_value = 0;
 static auto refuel = false;
-
+static auto fuel_tmp = 0.0f;
+static auto start_fuel = 0.0f;
 
 // Function: telemetry_frame_start
 // Register telemetry values
@@ -413,11 +414,17 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
 
         // check fuel value
         current_fuel_value = telem_ptr->truck_f.fuel;
+        if(!refuel) {
+            start_fuel = fuel_tmp;
+            fuel_tmp = telem_ptr->truck_f.fuel;
+        }
         if (current_fuel_value > last_fuel_value && last_fuel_value >0) {
             fuel_ticker2 = 0;
             telem_ptr->special_b.refuel = true;
-            refuel = true;
-            clear_refuel_payed_ticker = 0;
+            if(!refuel) {                
+                refuel = true;
+                clear_refuel_payed_ticker = 0;               
+            }
         }
         else if (current_fuel_value < last_fuel_value) {
             fuel_ticker2 = 0;
@@ -427,6 +434,7 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
         // refuel is true, but engine is know active? than refuel is finished and payed, fire event       
         if(refuel && telem_ptr->truck_b.engineEnabled) {
             refuel = false;
+            telem_ptr->gameplay_f.refuelAmount = telem_ptr->truck_f.fuel - start_fuel;
             telem_ptr->special_b.refuelPayed = true;
         }
 

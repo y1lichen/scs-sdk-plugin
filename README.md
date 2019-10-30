@@ -301,6 +301,8 @@ New stuff is marked with the <ins>inserted</ins> Tag.
 │    │    ├── Navigation Distance
 │    │    ├── Navigation Time
 │    │    └── Speed Limit
+│    ├── <strong>Refuel</strong>:
+│    │    ├── <ins>Amount</ins>  (see changelog update 10.4 for some notes to that)
 │    ├── <strong>SpecialEvents</strong>:
 │    │    ├── On Job
 │    │    ├── Job Cancelled (1.14/1.01/1.35) (may not work atm?)
