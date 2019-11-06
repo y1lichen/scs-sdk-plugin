@@ -84,6 +84,12 @@ namespace SCSSdkClient {
             retData.TruckValues.ConstantsValues.MotorValues.SlotSelectors = GetUintArray(32);
 
             retData.GamePlay.JobDelivered.DeliveryTime = GetUint();
+            var jobStartingTime = new SCSTelemetry.Time(GetUint());
+            retData.GamePlay.JobCancelled.Started = jobStartingTime;
+            retData.GamePlay.JobDelivered.Started = jobStartingTime;
+            var jobFinishingTime = new SCSTelemetry.Time(GetUint());
+            retData.GamePlay.JobCancelled.Finished = jobFinishingTime;
+            retData.GamePlay.JobDelivered.Finished = jobFinishingTime;
 
             NextOffsetArea();
 

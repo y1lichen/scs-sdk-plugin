@@ -555,11 +555,13 @@ SCSAPI_VOID telemetry_gameplay(const scs_event_t event, const void* const event_
     if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_job_cancelled) == 0) {
         type = cancelled;
         telem_ptr->special_b.jobCancelled = true;
+        telem_ptr->gameplay_ui.jobFinishedTime = telem_ptr->common_ui.time_abs;
         clear_cancelled_ticker = 0;
     }
     else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_job_delivered) == 0) {
         type = delivered;
         telem_ptr->special_b.jobDelivered = true;
+         telem_ptr->gameplay_ui.jobFinishedTime = telem_ptr->common_ui.time_abs;
         clear_delivered_ticker = 0;
     }
     else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_fined) == 0) {
@@ -688,6 +690,7 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const e
     else if (!telem_ptr->special_b.onJob && type == job && !is_empty) {
         // oh hey no job but now we have fields in this array so we start a new job
         telem_ptr->special_b.onJob = true;
+        telem_ptr->gameplay_ui.jobStartingTime = telem_ptr->common_ui.time_abs;
     }
 
 }

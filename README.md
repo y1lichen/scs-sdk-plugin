@@ -59,7 +59,7 @@ Note to the SDK Version: SDK 11 is not the same like the sdk version of ETS2 or 
 |------------|-----------|------------|
 |1.34 and before|1.0     |Should Work |
 |1.35        |1.01       |Works, test Version|
-|1.36 (public beta)      |1.02        |Works, new Test Version|
+|1.36     |1.02        |Works, new Test Version|
 
 ### SDK VERSION AND GAME SDK VERSION
 
@@ -301,8 +301,6 @@ New stuff is marked with the <ins>inserted</ins> Tag.
 │    │    ├── Navigation Distance
 │    │    ├── Navigation Time
 │    │    └── Speed Limit
-│    ├── <strong>Refuel</strong>:
-│    │    ├── <ins>Amount</ins>  (see changelog update 10.4 for some notes to that)
 │    ├── <strong>SpecialEvents</strong>:
 │    │    ├── On Job
 │    │    ├── Job Cancelled (1.14/1.01/1.35) (may not work atm?)
@@ -315,9 +313,16 @@ New stuff is marked with the <ins>inserted</ins> Tag.
 │    │    ├── <ins>Refuel End</ins> (Fired on refuel stop)
 │    │    └── <ins>Refuel Payed</ins> (Fired on refuel end/engine start)
 │    └── <strong>GameplayEvents (1.14/1.01/1.35)</strong>:
+│         ├── <strong>Refuel</strong>:
+│         │    └── <ins>Amount</ins> (No Version note)  (see changelog update 10.4 for some notes to that)
 │         ├── <strong>Cancelled</strong>:
+│         │    ├── <ins>Started</ins> (This value could be wrong if profile is closed or game is restarted, see changelog update 10.4)
+│         │    ├── <ins>Finished</ins>
 │         │    └── Penalty
 │         ├── <strong>Delivered</strong>:
+│         │    ├── <ins>Started</ins> (This value could be wrong if profile is closed or game is restarted, see changelog update 10.4)
+│         │    ├── <ins>Finished</ins>
+│         │    ├── <ins>StartedBackup</ins> (See changelog update 10.4 and documentation for notes to that property)
 │         │    ├── AutoLoaded
 │         │    ├── AutoParked
 │         │    ├── CargoDamage

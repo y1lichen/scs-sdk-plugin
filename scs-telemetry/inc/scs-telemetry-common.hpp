@@ -213,8 +213,10 @@ typedef struct scsTelemetryMap_s
 
 	struct {
 		unsigned int jobDeliveredDeliveryTime;
+        unsigned int jobStartingTime;
+        unsigned int jobFinishedTime; 
 	}gameplay_ui;
-	char buffer_ui[56];
+	char buffer_ui[48];
 	//----- END OF SECOND ZONE AT OFFSET 499 -----//
 
 	//----- START OF Third ZONE AT OFFSET 500 -----//
