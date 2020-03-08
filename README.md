@@ -51,7 +51,7 @@ Note to the SDK Version: SDK 11 is not the same like the sdk version of ETS2 or 
 |1.26 and before|1.12 and before|Not Tested, could work with errors|
 |1.27 - 1.34 |1.13       |Work        |
 |1.35        |1.14       |Works, test Version|
-|1.36 (public beta)      |1.15        |Works, new Test Version|
+|1.36     |1.15        |Works, new Test Version|
 
 ### ATS
 
