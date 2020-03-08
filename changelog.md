@@ -13,6 +13,7 @@
   - **NOTE:** `JobCancelled`: If the game is closed after or the profile is changed the start value will be **wrong**, because the Starting Time is set through the appearance of the `job` values of the sdk. On the start of a profile the value will be overwritten, because the `job` values are "new". Same thing happens when the sdk is restarted. If you want a "save" value, you may need to make a backup yourself. The value `Started` is set in the moment a new job is started and not bounded to the event itself. I will add some note to that in the documentation of course
   - **Note:** `JobDelivered`: Similar problem to `JobCancelled`, but it has an backup property. The backup property calculate the starting time through the `finished` and `DeliveringTime` value. The values should be equals. You can choose which values you want to use.
   - Additional: If you do not start the simulation (start driving) the timestamp won't updated to the game time of the current profile and can lead to wrong starting times
+- removed `memset` at shutdown call to avoid waiting time (leeds to shutdown time of ets2/ats of multiple minutes)  
 - **Shared Memory Changes**:
   - > Zone 4 end is modified (floats) -> `gameplas_f.refuelAmount` added, so `job_f.cargoDamage` moved 4 bytes
   - > Zone 2 end is modified (uints) -> `jobStartingTime` and `jobFinishedTime` added, nothing moved
