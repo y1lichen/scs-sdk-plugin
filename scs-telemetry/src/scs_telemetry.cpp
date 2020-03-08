@@ -405,7 +405,6 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
     /* Copy over the game timestamp to our telemetry memory */
     if (telem_ptr != nullptr) {
         telem_ptr->time = static_cast<unsigned int>(timestamp);
-
         // Do a non-convential periodic update of this field:
         telem_ptr->truck_b.cruiseControl = telem_ptr->truck_f.cruiseControlSpeed > 0;
 
@@ -415,20 +414,19 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
             start_fuel = fuel_tmp;
             fuel_tmp = telem_ptr->truck_f.fuel;
         }
-        if (current_fuel_value > last_fuel_value && last_fuel_value >0) {
+        if (current_fuel_value > last_fuel_value && last_fuel_value > 0) {
             fuel_ticker2 = 0;
             telem_ptr->special_b.refuel = true;
             if(!refuel) {                
                 refuel = true;
                 clear_refuel_payed_ticker = 0;               
             }
-        }
-        else if (current_fuel_value < last_fuel_value) {
+        }else if (current_fuel_value < last_fuel_value) {
             fuel_ticker2 = 0;
             telem_ptr->special_b.refuel = false;
         }
 
-        // refuel is true, but engine is know active? than refuel is finished and payed, fire event       
+        // refuel is true, but engine is know active? than refuel is finished and payed, fire event   
         if(refuel && telem_ptr->truck_b.engineEnabled) {
             refuel = false;
             telem_ptr->gameplay_f.refuelAmount = telem_ptr->truck_f.fuel - start_fuel;
