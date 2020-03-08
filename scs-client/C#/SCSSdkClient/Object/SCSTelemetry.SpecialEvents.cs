@@ -25,6 +25,7 @@ namespace SCSSdkClient.Object {
             public bool Ferry { get; internal set; }
             public bool Train { get; internal set; }
             public bool Refuel {get; internal set;}
+            public bool RefuelPayed {get;internal set;}
         }
     }
 }

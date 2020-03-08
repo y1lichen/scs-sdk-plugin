@@ -25,7 +25,9 @@ namespace SCSSdkClient.Demo {
             Telemetry.Tollgate += TelemetryTollgate;
             Telemetry.Ferry += TelemetryFerry;
             Telemetry.Train += TelemetryTrain;
-            Telemetry.Refuel += TelemetryRefuel;
+            Telemetry.RefuelStart += TelemetryRefuel;
+            Telemetry.RefuelEnd += TelemetryRefuelEnd;
+            Telemetry.RefuelPayed += TelemetryRefuelPayed;
 
 
             if (Telemetry.Error != null) {
@@ -61,7 +63,13 @@ namespace SCSSdkClient.Demo {
 
         private void TelemetryTrain(object sender, EventArgs e) =>
             MessageBox.Show("Train");
-        private void TelemetryRefuel(object sender, EventArgs e) {}
+        private void TelemetryRefuel(object sender, EventArgs e) => rtb_fuel.Invoke((MethodInvoker)(()=>rtb_fuel.BackColor = Color.Green)); 
+        private void TelemetryRefuelEnd(object sender, EventArgs e) =>  rtb_fuel.Invoke((MethodInvoker)(()=>rtb_fuel.BackColor = Color.Red));
+
+        private void TelemetryRefuelPayed(object sender, EventArgs e) {
+            MessageBox.Show("Fuel Payed");
+        }
+
 
         private void Telemetry_Data(SCSTelemetry data, bool updated) {
             try {
@@ -102,7 +110,9 @@ namespace SCSSdkClient.Demo {
                                  "\tferry:\n" +
                                  $"\t\t\t{data.SpecialEventsValues.Ferry}\n" +
                                  "\ttrain:\n" +
-                                 $"\t\t\t{data.SpecialEventsValues.Train}\n";
+                                 $"\t\t\t{data.SpecialEventsValues.Train}\n"+
+                                 "\tRefuel Payed:\n" +
+                                 $"\t\t\t{data.SpecialEventsValues.RefuelPayed}\n";
 
                 common.Text = JsonConvert.SerializeObject(data.CommonValues, Formatting.Indented);
                 truck.Text = JsonConvert.SerializeObject(data.TruckValues, Formatting.Indented);
@@ -116,7 +126,7 @@ namespace SCSSdkClient.Demo {
                 substances.Text = JsonConvert.SerializeObject(data.Substances, Formatting.Indented);
                 gameplayevent.Text = JsonConvert.SerializeObject(data.GamePlay, Formatting.Indented);
                 rtb_fuel.Text = data.TruckValues.CurrentValues.DashboardValues.FuelValue.Amount + " "+ data.SpecialEventsValues.Refuel ;
-                rtb_fuel.BackColor = data.SpecialEventsValues.Refuel ? Color.Green : Color.Red;
+               
 
             } catch (Exception ex) {
                 // ignored atm i found no proper way to shut the telemetry down and down call this anymore when this or another thing is already disposed

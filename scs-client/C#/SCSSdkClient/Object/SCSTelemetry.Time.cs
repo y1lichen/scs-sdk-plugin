@@ -23,6 +23,8 @@ namespace SCSSdkClient.Object {
             public DateTime Date => MinutesToDate(Value);
 
             public static implicit operator Time(uint i) => new Time(i);
+
+            public static Time operator -(Time a, Time b) => new Time(a.Value - b.Value);
         }
     }
 }

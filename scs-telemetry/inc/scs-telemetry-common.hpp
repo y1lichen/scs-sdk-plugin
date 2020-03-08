@@ -213,8 +213,10 @@ typedef struct scsTelemetryMap_s
 
 	struct {
 		unsigned int jobDeliveredDeliveryTime;
+        unsigned int jobStartingTime;
+        unsigned int jobFinishedTime; 
 	}gameplay_ui;
-	char buffer_ui[56];
+	char buffer_ui[48];
 	//----- END OF SECOND ZONE AT OFFSET 499 -----//
 
 	//----- START OF Third ZONE AT OFFSET 500 -----//
@@ -306,12 +308,13 @@ typedef struct scsTelemetryMap_s
 	struct {
 		float jobDeliveredCargoDamage;
 		float jobDeliveredDistanceKm;
+        float refuelAmount;
 	}gameplay_f;
 
 	struct {
 		float cargoDamage;
 	}job_f;
-	char buffer_f[32];
+	char buffer_f[28];
 	//----- END OF FOURTH ZONE AT OFFSET 1499 -----//
 
 	//----- START OF FIFTH ZONE AT OFFSET 1500 -----//
@@ -515,9 +518,10 @@ typedef struct scsTelemetryMap_s
 		bool ferry;
 		bool train;
 		bool refuel;
+		bool refuelPayed;
 	}special_b;
 
-	char buffer_special[91];
+	char buffer_special[90];
 	//----- END OF 12TH ZONE AT OFFSET 4399 -----//
 
 	//----- START OF 13TH ZONE AT OFFSET 4400 -----//

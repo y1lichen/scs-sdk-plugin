@@ -330,10 +330,8 @@ static auto clear_fined_ticker = 0;
 static auto clear_tollgate_ticker = 0;
 static auto clear_ferry_ticker = 0;
 static auto clear_train_ticker = 0;
+static auto clear_refuel_payed_ticker = 0;
 
-void clear_shared_memory() {
-	memset(telem_ptr, 0, SCS_PLUGIN_MMF_SIZE);
-}
 
 //TODO: REWORK BOTH CLEAN FUNCTION AND ADD MORE FOR SINGLE CONFIG attribute
 // Function: set_job_values_zero
@@ -370,8 +368,12 @@ void set_trailer_values_zero(unsigned int trailer_id = 0) {
 // Last Fuel Value (set to a high value to avoid to trigger the event directly on start)
 static auto fuel_ticker = 0;
 static auto fuel_ticker2 = 0;
-static auto last_fuel_value = 99999;
+static auto last_fuel_value = 0;
 static auto current_fuel_value = 0;
+static auto refuel = false;
+static auto fuel_tmp = 0.0f;
+static auto start_fuel = 0.0f;
+
 // Function: telemetry_frame_start
 // Register telemetry values
 SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* const event_info,
@@ -399,74 +401,97 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
 
     timestamp += info->paused_simulation_time - last_timestamp;
     last_timestamp = info->paused_simulation_time;
-
+   
     /* Copy over the game timestamp to our telemetry memory */
     if (telem_ptr != nullptr) {
         telem_ptr->time = static_cast<unsigned int>(timestamp);
-
         // Do a non-convential periodic update of this field:
         telem_ptr->truck_b.cruiseControl = telem_ptr->truck_f.cruiseControlSpeed > 0;
 
         // check fuel value
         current_fuel_value = telem_ptr->truck_f.fuel;
-        if( current_fuel_value > last_fuel_value) {            
-               fuel_ticker2 = 0;
-               telem_ptr->special_b.refuel = true;
-           }else if( current_fuel_value < last_fuel_value) {
-               fuel_ticker2 = 0;
-               telem_ptr->special_b.refuel = false;
-           }
+        if(!refuel) {
+            start_fuel = fuel_tmp;
+            fuel_tmp = telem_ptr->truck_f.fuel;
+        }
+        if (current_fuel_value > last_fuel_value && last_fuel_value > 0) {
+            fuel_ticker2 = 0;
+            telem_ptr->special_b.refuel = true;
+            if(!refuel) {                
+                refuel = true;
+                clear_refuel_payed_ticker = 0;               
+            }
+        }else if (current_fuel_value < last_fuel_value) {
+            fuel_ticker2 = 0;
+            telem_ptr->special_b.refuel = false;
+        }
+
+        // refuel is true, but engine is know active? than refuel is finished and payed, fire event   
+        if(refuel && telem_ptr->truck_b.engineEnabled) {
+            refuel = false;
+            telem_ptr->gameplay_f.refuelAmount = telem_ptr->truck_f.fuel - start_fuel;
+            telem_ptr->special_b.refuelPayed = true;
+        }
 
         // update last value every few ticks (refuel rate is not constant and the plugin side did check every 25 ms so to try a
         // constant refuel event for the whole time a few strange things :D atm
-        if(fuel_ticker>10) {
-            fuel_ticker=0;
+        if (fuel_ticker > 10) {
+            fuel_ticker = 0;
 
-            if( current_fuel_value == last_fuel_value ) {
+            if (current_fuel_value == last_fuel_value) {
                 fuel_ticker2++;
-            }else {
+            }
+            else {
                 fuel_ticker2 = 0;
             }
-            if(fuel_ticker2>=5) {
-               fuel_ticker2 = 0;
-               telem_ptr->special_b.refuel = false;
+            if (fuel_ticker2 >= 5) {
+                fuel_ticker2 = 0;
+                telem_ptr->special_b.refuel = false;
             }
 
-           last_fuel_value = current_fuel_value;            
-        } 
-            fuel_ticker++;
-       
+            last_fuel_value = current_fuel_value;
+        }
+        fuel_ticker++;
+
+
+
 
         //TODO: better way for that mess here
-		if (telem_ptr->special_b.jobFinished) {
-			clear_job_ticker++;
+        if (telem_ptr->special_b.jobFinished) {
+            clear_job_ticker++;
 
-			if (telem_ptr->special_b.jobCancelled) {
-				clear_cancelled_ticker++;
+            if (telem_ptr->special_b.jobCancelled) {
+                clear_cancelled_ticker++;
 
-				if (clear_cancelled_ticker > 10) {
-					set_job_values_zero();
-					telem_ptr->special_b.jobCancelled = false;
-					telem_ptr->special_b.jobFinished = false;
-				}
-			}
-			else if (telem_ptr->special_b.jobDelivered) {
-				clear_delivered_ticker++;
+                if (clear_cancelled_ticker > 10) {
+                    set_job_values_zero();
+                    telem_ptr->special_b.jobCancelled = false;
+                    telem_ptr->special_b.jobFinished = false;
+                }
+            }
+            else if (telem_ptr->special_b.jobDelivered) {
+                clear_delivered_ticker++;
 
-				if (clear_delivered_ticker > 10) {
-					set_job_values_zero();
-					telem_ptr->special_b.jobDelivered = false;
-					telem_ptr->special_b.jobFinished = false;
-				}
-			}
-			else {
-				if (clear_job_ticker > 3) {
-					clear_job_ticker = 0;
-					telem_ptr->special_b.jobCancelled = true;
-				}
-			}
-		}
-		
+                if (clear_delivered_ticker > 10) {
+                    set_job_values_zero();
+                    telem_ptr->special_b.jobDelivered = false;
+                    telem_ptr->special_b.jobFinished = false;
+                }
+            }
+            else {
+                if (clear_job_ticker > 3) {
+                    clear_job_ticker = 0;
+                    telem_ptr->special_b.jobCancelled = true;
+                }
+            }
+        }
+        if (telem_ptr->special_b.refuelPayed) {
+            clear_refuel_payed_ticker++;
+
+            if (clear_refuel_payed_ticker > 10) {
+                telem_ptr->special_b.refuelPayed = false;
+            }
+        }
         if (telem_ptr->special_b.fined) {
             clear_fined_ticker++;
 
@@ -525,11 +550,13 @@ SCSAPI_VOID telemetry_gameplay(const scs_event_t event, const void* const event_
     if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_job_cancelled) == 0) {
         type = cancelled;
         telem_ptr->special_b.jobCancelled = true;
+        telem_ptr->gameplay_ui.jobFinishedTime = telem_ptr->common_ui.time_abs;
         clear_cancelled_ticker = 0;
     }
     else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_job_delivered) == 0) {
         type = delivered;
         telem_ptr->special_b.jobDelivered = true;
+         telem_ptr->gameplay_ui.jobFinishedTime = telem_ptr->common_ui.time_abs;
         clear_delivered_ticker = 0;
     }
     else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_fined) == 0) {
@@ -658,6 +685,7 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const e
     else if (!telem_ptr->special_b.onJob && type == job && !is_empty) {
         // oh hey no job but now we have fields in this array so we start a new job
         telem_ptr->special_b.onJob = true;
+        telem_ptr->gameplay_ui.jobStartingTime = telem_ptr->common_ui.time_abs;
     }
 
 }
@@ -804,10 +832,9 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     if (telem_ptr == nullptr) {
         return SCS_RESULT_generic_error;
     }
-	clear_shared_memory();
 
-	// set sdk active bit to true
-	telem_ptr->sdkActive = true;
+    // set sdk active bit to true
+    telem_ptr->sdkActive = true;
     /*** INITIALIZE TELEMETRY MAP TO DEFAULT ***/
     telem_ptr->paused = true;
     telem_ptr->time = 0;
@@ -1086,8 +1113,6 @@ SCSAPI_VOID scs_telemetry_shutdown() {
 #if LOGGING
 	logger::flush();
 #endif
-    // set sdk active bit to false and reset all other data
-	clear_shared_memory();
     // Close MemoryMap
     if (telem_mem != nullptr) {
         telem_mem->Close();
