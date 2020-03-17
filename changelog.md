@@ -1,6 +1,6 @@
 # Changelog
 
-## Rev 10 Update 4
+## Rev 10 Update 4 (with small fix)
 
 - Update `Readme.md`
 - Change `update.md` to `changelog.md`
@@ -14,6 +14,19 @@
   - **Note:** `JobDelivered`: Similar problem to `JobCancelled`, but it has an backup property. The backup property calculate the starting time through the `finished` and `DeliveringTime` value. The values should be equals. You can choose which values you want to use.
   - Additional: If you do not start the simulation (start driving) the timestamp won't updated to the game time of the current profile and can lead to wrong starting times
 - removed `memset` at shutdown call to avoid waiting time (leeds to shutdown time of ets2/ats of multiple minutes)  
+- **fix update** through the remove of `memset` the `sdkaktive` field was not set to false. Fixed that (**the DLL of this release does not contains this fix**)
+  - some additional values will be set to 0:
+    - SDK Version
+    - Game
+    - Game Version
+    - Telemetry Version
+    - TimeStamp
+    - Common:
+      - Scale
+      - GameTime
+       
+**Note to that** may in a future release all values will be reset again, but i need to find a way that want create that high closing time for some users.
+
 - **Shared Memory Changes**:
   - > Zone 4 end is modified (floats) -> `gameplas_f.refuelAmount` added, so `job_f.cargoDamage` moved 4 bytes
   - > Zone 2 end is modified (uints) -> `jobStartingTime` and `jobFinishedTime` added, nothing moved

@@ -25,6 +25,13 @@ You will now notice that each time ETS2/ATS now starts it prompts the SDK has be
 
 ## Developers Information
 
+### Note to current changes (Rev 10 Update 4)
+
+Because the memset in the shutdown function of the c++ code seems sometimes leads to long closing times of ets2/ats this function is removed.
+That means at the moment that while the shared memory is open, closing the game will not erase the shared memory values. To identify if the sdk is loaded
+use the `SdkActive` field of the SCSTelemetry object. The Dll to Rev 10 Update 4 does not contains the fix that set the value to 0 if the game is closed.
+If you do not want to build the dll by yourself you could use the `Timestamp` field. That should be reseted when the game is started.
+
 ### Documentation (not completed at the moment)
 
 There is also an Documentation. It tells a lot about the values. An installation, build , etc. guide will also follow. Should there still be questions, feature request or other changes visit the discord server linked at the top.

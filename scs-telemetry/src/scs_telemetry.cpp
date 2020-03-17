@@ -1114,6 +1114,18 @@ SCSAPI_VOID scs_telemetry_shutdown() {
 	logger::flush();
 #endif
     // Close MemoryMap
+    telem_ptr->sdkActive = false;
+    telem_ptr->scs_values.game = 0;
+    telem_ptr->scs_values.telemetry_plugin_revision = 0;
+    telem_ptr->scs_values.telemetry_version_game_major = 0;
+    telem_ptr->scs_values.telemetry_version_game_minor = 0;
+    telem_ptr->scs_values.version_major = 0;
+    telem_ptr->scs_values.version_minor = 0;
+
+    telem_ptr->time = 0;
+    telem_ptr->common_ui.time_abs = 0;
+    telem_ptr->common_f.scale = 0;
+
     if (telem_mem != nullptr) {
         telem_mem->Close();
     }
