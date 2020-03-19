@@ -344,7 +344,7 @@ void set_job_values_zero() {
     telem_ptr->config_f.unitMass = 0;
     telem_ptr->job_f.cargoDamage = 0;
     telem_ptr->config_b.isCargoLoaded = false;
-    telem_ptr->config_b.isCargoLoaded = false;
+    telem_ptr->config_ui.plannedDistanceKm = 0;
     memset(telem_ptr->config_s.compDstId, 0, stringsize);
     memset(telem_ptr->config_s.compSrcId, 0, stringsize);
     memset(telem_ptr->config_s.cityDstId, 0, stringsize);
@@ -607,7 +607,7 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const e
                                     scs_context_t UNUSED(context)) {
     // On configuration change, this function is called.
     const auto info = static_cast<const scs_telemetry_configuration_t *>(
-        // TODO: DELETE ENTRYS WHEN CALLED SO NO VALUE IS THERE to avoid wrong values when changes accour but not in arrays up to that slot or so 
+        // TODO: DELETE ENTRIES WHEN CALLED SO NO VALUE IS THERE to avoid wrong values when changes occur but not in arrays up to that slot or so 
         event_info);
     unsigned int trailer_id = NULL;
     // check which type the event has
@@ -663,7 +663,7 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const e
     }
 
     // uncomment to log every config, should work but with function not tested ^^`
-    //log_configs(info); 
+    // log_configs(info); 
 
     // attribute is a pointer array that is never null so ... i have no clue how to check it on another way than this
     // if for loop can't loop it is empty so simple 

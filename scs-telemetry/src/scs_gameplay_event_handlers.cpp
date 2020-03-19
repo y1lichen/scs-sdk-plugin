@@ -9,6 +9,7 @@
 
 extern SharedMemory* telem_mem;
 extern scsTelemetryMap_t* telem_ptr;
+extern void set_job_values_zero();
 
 #pragma region scsGameplayEventHandler_t[]
 
@@ -82,9 +83,11 @@ bool handleGpe(const scs_named_value_t* info, const gameplayType type) {
     switch (type) {
     case cancelled:
         gameplay = cancelled_gameplay;
+        set_job_values_zero();
         break;
     case delivered:
         gameplay = delivered_gameplay;
+         set_job_values_zero();
         break;
     case fined:
         gameplay = fined_gameplay;
@@ -102,17 +105,17 @@ bool handleGpe(const scs_named_value_t* info, const gameplayType type) {
         // something went wrong
         return false;
     }
-    auto i = gameplay;
+   
     for (auto index = 0; index < length_gameplays[type]; index++) {
-        if (strcmp(i->id, info->name) == 0) {
+        if (strcmp(gameplay->id, info->name) == 0) {
             if (telem_ptr) {
                 // Equal ID's; then handle this configuration
-                if (i->handle)
-                    i->handle(info);
+                if (gameplay->handle)
+                    gameplay->handle(info);
             }
             return true;
         }
-        ++i;
+        ++gameplay;
     }
     return false;
 }

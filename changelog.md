@@ -1,5 +1,12 @@
 # Changelog
 
+## Rev 10 Update 5 
+
+- now change `onJob` and `jobFinished` with the present of `jobDelivered` and `jobChancelled`. Before it is changed after leaving the experience screen or sometimes when enter drive mode. 
+  - Job values are also reseted directly with the event
+- remove variarble `i` from `scs_config_handlers.cpp` and `scs_gameplay_event_handlers.cpp`
+- now `isCargoLoaded` won't be reseted twiced by calling `set_job_values_zero`, instead the `plannedDistanceKm` is reseted correctly
+
 ## Rev 10 Update 4 (with small fix)
 
 - Update `Readme.md`

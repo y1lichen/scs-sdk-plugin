@@ -170,18 +170,18 @@ bool handleCfg(const scs_named_value_t* info, const configType type, const unsig
     default:
         return false;
     }
-    auto i = configs;
+    
     for (auto index = 0; index < length_configs[type]; index++) {
-        if (strcmp(i->id, info->name) == 0) {
+        if (strcmp(configs->id, info->name) == 0) {
             if (telem_ptr) {
                 // Equal ID's; then handle this configuration
-                if (i->handle)
+                if (configs->handle)
                     // TODO: FIND A BETTER WAY TO HANDLE THE TRAILER ID
-                    i->handle(info, trailer_id);
+                    configs->handle(info, trailer_id);
             }
             return true;
         }
-        ++i;
+        ++configs;
     }
     return false;
 }
