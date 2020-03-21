@@ -57,16 +57,16 @@ Note to the SDK Version: SDK 11 is not the same like the sdk version of ETS2 or 
 |------------|-----------|------------|
 |1.26 and before|1.12 and before|Not Tested, could work with errors|
 |1.27 - 1.34 |1.13       |Work        |
-|1.35        |1.14       |Works, test Version|
-|1.36     |1.15        |Works, new Test Version|
+|1.35        |1.14       |Works|
+|1.36     |1.15        |Works, Test Version|
 
 ### ATS
 
 |Game Version|SDK Version|Plugin State|
 |------------|-----------|------------|
 |1.34 and before|1.0     |Should Work |
-|1.35        |1.01       |Works, test Version|
-|1.36     |1.02        |Works, new Test Version|
+|1.35        |1.01       |Works|
+|1.36     |1.02        |Works, Test Version|
 
 ### SDK VERSION AND GAME SDK VERSION
 
@@ -91,8 +91,10 @@ New stuff is marked with the <ins>inserted</ins> Tag.
 
 <pre>
 
-<strong>Game Values (V.1.10.4)</strong>:
-│    ├── Telemetry Timestamp (<mark>not the in-game time</mark>, only for usage in code, see documentation for more information #todo add link)
+<strong>Game Values (V.1.10.5)</strong>:
+│    ├── Telemetry Timestamp (<mark>not the in-game time</mark>, only for usage in code, see documentation for more information #todo add link) (<mark>now ulong</mark>)
+│    ├── <ins>Simulation</ins> Timestamp
+│    ├── <ins>Render</ins> Timestamp
 │    ├── Paused, game state
 │    ├── SCSGame identifier as enum, currently ets2/ats/unknown
 │    ├── GameVersion and Game Telemetry Version (major.minor)
@@ -229,7 +231,7 @@ New stuff is marked with the <ins>inserted</ins> Tag.
 │    │         ├── Head Offset
 │    │         ├── Cabin Offset
 │    │         └── Contains "more fields" see at the bottom of the list
-│    ├── <strong>Trailer Values (will be set to 0,false, etc. if you have no trailer, while on job or with trailer ownership detached wont reset the values)[0-9] (array starting with 1.14/1.01 so 0 for 1 trailer or version lower than that)</strong>:
+│    ├── <strong>Trailer Values (will be set to 0, false, etc. if you have no trailer, while on job or with trailer ownership detached wont reset the values)[0-9] (array starting with 1.14/1.01 so 0 for 1 trailer or version lower than that)</strong>:
 │    │    ├── Attached
 │    │    ├── Hook
 │    │    ├── Position
@@ -316,20 +318,20 @@ New stuff is marked with the <ins>inserted</ins> Tag.
 │    │    ├── Tollgate (1.14/1.01/1.35)
 │    │    ├── Ferry (1.14/1.01/1.35)
 │    │    ├── Train (1.14/1.01/1.35)
-│    │    ├── <del>Refuel</del> <ins>Refuel Start</ins>
-│    │    ├── <ins>Refuel End</ins> (Fired on refuel stop)
-│    │    └── <ins>Refuel Payed</ins> (Fired on refuel end/engine start)
+│    │    ├── Refuel Start
+│    │    ├── Refuel End (Fired on refuel stop)
+│    │    └── Refuel Payed (Fired on refuel end/engine start)
 │    └── <strong>GameplayEvents (1.14/1.01/1.35)</strong>:
 │         ├── <strong>Refuel</strong>:
-│         │    └── <ins>Amount</ins> (No Version note)  (see changelog update 10.4 for some notes to that)
+│         │    └── Amount (No Version note)  (see changelog update 10.4 for some notes to that)
 │         ├── <strong>Cancelled</strong>:
-│         │    ├── <ins>Started</ins> (This value could be wrong if profile is closed or game is restarted, see changelog update 10.4)
-│         │    ├── <ins>Finished</ins>
+│         │    ├── Started (This value could be wrong if profile is closed or game is restarted, see changelog update 10.4)
+│         │    ├── Finished
 │         │    └── Penalty
 │         ├── <strong>Delivered</strong>:
-│         │    ├── <ins>Started</ins> (This value could be wrong if profile is closed or game is restarted, see changelog update 10.4)
-│         │    ├── <ins>Finished</ins>
-│         │    ├── <ins>StartedBackup</ins> (See changelog update 10.4 and documentation for notes to that property)
+│         │    ├── Started (This value could be wrong if profile is closed or game is restarted, see changelog update 10.4)
+│         │    ├── Finished>
+│         │    ├── StartedBackup (See changelog update 10.4 and documentation for notes to that property)
 │         │    ├── AutoLoaded
 │         │    ├── AutoParked
 │         │    ├── CargoDamage

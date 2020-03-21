@@ -71,7 +71,7 @@ namespace SCSSdkClient.Demo {
         }
 
 
-        private void Telemetry_Data(SCSTelemetry data, bool updated) {
+        private void Telemetry_Data(SCSTelemetry data, bool updated) { 
             try {
                 if (InvokeRequired) {
                     Invoke(new TelemetryData(Telemetry_Data), data, updated);
@@ -93,6 +93,10 @@ namespace SCSSdkClient.Demo {
                                  $"\t\t\t{data.TelemetryVersion}\n" +
                                  "\tTimeStamp:\n" +
                                  $"\t\t\t{data.Timestamp}\n" +
+                                 "\tSimulation TimeStamp:\n" +
+                                 $"\t\t\t{data.SimulationTimestamp}\n" +
+                                 "\tRender TimeStamp:\n" +
+                                 $"\t\t\t{data.RenderTimestamp}\n" +
                                  "\tGame Paused:\n" +
                                  $"\t\t\t{data.Paused}\n" +
                                  "\tOn Job:\n" +

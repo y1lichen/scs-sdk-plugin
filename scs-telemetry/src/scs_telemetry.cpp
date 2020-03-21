@@ -322,7 +322,13 @@ void log_events(const scs_telemetry_gameplay_event_t* info) {
  * @brief Last timestamp we received.
  */
 scs_timestamp_t last_timestamp = static_cast<scs_timestamp_t>(-1);
+scs_timestamp_t last_simulatedtimestamp = static_cast<scs_timestamp_t>(-1);
+scs_timestamp_t last_rendertimestamp = static_cast<scs_timestamp_t>(-1);
+
 scs_timestamp_t timestamp;
+scs_timestamp_t simulatedtimestamp;
+scs_timestamp_t rendertimestamp;
+
 static auto clear_job_ticker = 0;
 static auto clear_cancelled_ticker = 0;
 static auto clear_delivered_ticker = 0;
@@ -389,22 +395,37 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
     if (last_timestamp == static_cast<scs_timestamp_t>(-1)) {
         last_timestamp = info->paused_simulation_time;
     }
+    if (last_simulatedtimestamp == static_cast<scs_timestamp_t>(-1)) {
+        last_simulatedtimestamp = info->simulation_time;
+    }
+    if (last_rendertimestamp == static_cast<scs_timestamp_t>(-1)) {
+        last_rendertimestamp = info->render_time;
+    }
 
     // The timer might be sometimes restarted (e.g. after load) while
     // we want to provide continuous time on our output.
 
     if (info->flags & SCS_TELEMETRY_FRAME_START_FLAG_timer_restart) {
         last_timestamp = 0;
+        last_simulatedtimestamp = 0;
+        last_rendertimestamp = 0;
     }
 
     // Advance the timestamp by delta since last frame.
 
     timestamp += info->paused_simulation_time - last_timestamp;
+    simulatedtimestamp += info->simulation_time - last_simulatedtimestamp;
+    rendertimestamp += info->render_time - last_rendertimestamp;
     last_timestamp = info->paused_simulation_time;
-   
+    last_simulatedtimestamp = info->simulation_time;
+    last_rendertimestamp = info->render_time;
+    
     /* Copy over the game timestamp to our telemetry memory */
     if (telem_ptr != nullptr) {
-        telem_ptr->time = static_cast<unsigned int>(timestamp);
+        telem_ptr->time = static_cast<unsigned long long>(timestamp);
+        telem_ptr->simulatedTime = static_cast<unsigned long long>(simulatedtimestamp);
+        telem_ptr->renderTime = static_cast<unsigned long long>(rendertimestamp); 
+
         // Do a non-convential periodic update of this field:
         telem_ptr->truck_b.cruiseControl = telem_ptr->truck_f.cruiseControlSpeed > 0;
 
@@ -1123,6 +1144,8 @@ SCSAPI_VOID scs_telemetry_shutdown() {
     telem_ptr->scs_values.version_minor = 0;
 
     telem_ptr->time = 0;
+    telem_ptr->simulatedTime = 0;
+    telem_ptr->renderTime = 0;
     telem_ptr->common_ui.time_abs = 0;
     telem_ptr->common_f.scale = 0;
 

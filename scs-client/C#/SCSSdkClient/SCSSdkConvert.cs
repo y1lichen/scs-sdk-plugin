@@ -44,9 +44,14 @@ namespace SCSSdkClient {
 
             #region FIRST ZONE 
 
-            retData.SdkActive = GetBool(); // should jump to the correct offset here automaticly (1->3)
-            retData.Timestamp = GetUint();
+            retData.SdkActive = GetBool();
+            GetBoolArray(3);
             retData.Paused = GetBool();
+            GetBoolArray(3);
+            retData.Timestamp = GetULong();
+            retData.SimulationTimestamp = GetULong();
+            retData.RenderTimestamp = GetULong();
+
 
 
             NextOffsetArea();

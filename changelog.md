@@ -1,11 +1,20 @@
 # Changelog
 
-## Rev 10 Update 5 
+## Rev 10 Update 5
 
 - now change `onJob` and `jobFinished` with the present of `jobDelivered` and `jobChancelled`. Before it is changed after leaving the experience screen or sometimes when enter drive mode. 
   - Job values are also reseted directly with the event
 - remove variarble `i` from `scs_config_handlers.cpp` and `scs_gameplay_event_handlers.cpp`
 - now `isCargoLoaded` won't be reseted twiced by calling `set_job_values_zero`, instead the `plannedDistanceKm` is reseted correctly
+- **value type changed** timestamp is know a `ulong`  and not a `uint` anymore (sdk value is `unsigned long long`)
+- added 2 new values: `simulation timestamp` and `render timestamp` both are `ulong` values similar to the `timestamp` -> changes in Shared Memory
+- the `update` or `timestamp` bool of the Data Event is now for some special cases also set to true:
+  - (normal case) `timestamp` change
+  - one of the critical events values change (`jobDelivered` , `jobCancelled`, `Train`, `Ferry` and `onJob`). Why? they could happen if the `timestamp` did not change
+  - if both cases are false we check if the `pause` state change. Why? similar to above the `timestamp` did not change sometimes
+
+- **Shared Memory Changes**:
+  - > Zone 1 is modified  -> `time` change to `unsigned long long`, `simulatedTime` and `renderTime` added, moved `paused` behind `sdkActive` 
 
 ## Rev 10 Update 4 (with small fix)
 

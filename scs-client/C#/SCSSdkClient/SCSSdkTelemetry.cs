@@ -16,12 +16,13 @@ namespace SCSSdkClient {
         private const int DefaultPausedUpdateInterval = 1000;
 
         private int updateInterval;
+
         // todo: enhancement:  some way to set this value 
-        private int pausedUpdateInterval = DefaultPausedUpdateInterval;
+        private readonly int pausedUpdateInterval = DefaultPausedUpdateInterval;
 
         private Timer _updateTimer;
 
-        private uint lastTime = 0xFFFFFFFF;
+        private ulong lastTime = 0xFFFFFFFFFFFFFFFF;
 
 
 #if LOGGING
@@ -48,7 +49,7 @@ namespace SCSSdkClient {
         private bool paused;
         private bool refuel;
         private bool refuelPayed;
-
+        private bool wasPaused;
 
         public SCSSdkTelemetry() => Setup(DefaultSharedMemoryMap, DefaultUpdateInterval);
 
@@ -61,7 +62,7 @@ namespace SCSSdkClient {
         public string Map { get; private set; }
         public int UpdateInterval => paused ? pausedUpdateInterval : updateInterval;
 
-      
+
         public Exception Error { get; private set; }
 
         public event TelemetryData Data;
@@ -98,7 +99,7 @@ namespace SCSSdkClient {
 #endif
 
             Map = map;
-            updateInterval = interval; 
+            updateInterval = interval;
 
             SharedMemory = new SharedMemory();
             SharedMemory.Connect(map);
@@ -135,11 +136,15 @@ namespace SCSSdkClient {
             }
 
             var time = scsTelemetry.Timestamp;
-            Data?.Invoke(scsTelemetry, time != lastTime);
+            var
+                criticalChange =
+                    false; // critical change are events that could happen (or do happen) when the game is paused and the timestamp could stay still, but data change
+
             //TODO: make it nicer thats a lot of code for such less work
             // Job start event
             if (wasOnJob != scsTelemetry.SpecialEventsValues.OnJob) {
                 wasOnJob = scsTelemetry.SpecialEventsValues.OnJob;
+                criticalChange = true;
                 if (scsTelemetry.SpecialEventsValues.OnJob) {
                     JobStarted?.Invoke(this, new EventArgs());
                 }
@@ -148,12 +153,15 @@ namespace SCSSdkClient {
 
             if (cancelled != scsTelemetry.SpecialEventsValues.JobCancelled) {
                 cancelled = scsTelemetry.SpecialEventsValues.JobCancelled;
+                criticalChange = true;
+
                 if (scsTelemetry.SpecialEventsValues.JobCancelled) {
                     JobCancelled?.Invoke(this, new EventArgs());
                 }
             }
 
             if (delivered != scsTelemetry.SpecialEventsValues.JobDelivered) {
+                criticalChange = true;
                 delivered = scsTelemetry.SpecialEventsValues.JobDelivered;
                 if (scsTelemetry.SpecialEventsValues.JobDelivered) {
                     JobDelivered?.Invoke(this, new EventArgs());
@@ -176,6 +184,7 @@ namespace SCSSdkClient {
 
             if (ferry != scsTelemetry.SpecialEventsValues.Ferry) {
                 ferry = scsTelemetry.SpecialEventsValues.Ferry;
+                criticalChange = true;
                 if (scsTelemetry.SpecialEventsValues.Ferry) {
                     Ferry?.Invoke(this, new EventArgs());
                 }
@@ -183,6 +192,7 @@ namespace SCSSdkClient {
 
             if (train != scsTelemetry.SpecialEventsValues.Train) {
                 train = scsTelemetry.SpecialEventsValues.Train;
+                criticalChange = true;
                 if (scsTelemetry.SpecialEventsValues.Train) {
                     Train?.Invoke(this, new EventArgs());
                 }
@@ -196,15 +206,16 @@ namespace SCSSdkClient {
                     RefuelEnd?.Invoke(this, new EventArgs());
                 }
             }
+
             if (refuelPayed != scsTelemetry.SpecialEventsValues.RefuelPayed) {
                 refuelPayed = scsTelemetry.SpecialEventsValues.RefuelPayed;
                 if (scsTelemetry.SpecialEventsValues.RefuelPayed) {
                     RefuelPayed?.Invoke(this, new EventArgs());
                 }
             }
-   
 
-
+            Data?.Invoke(scsTelemetry, time != lastTime || criticalChange || wasPaused != scsTelemetry.Paused);
+            wasPaused = scsTelemetry.Paused;
             lastTime = time;
         }
 #if LOGGING

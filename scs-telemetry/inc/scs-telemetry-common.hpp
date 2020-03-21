@@ -150,16 +150,19 @@ typedef struct scsTelemetryMap_s
 	// display if game / sdk runs
 	bool sdkActive;
 	char placeHolder[3];
+    // check if the game and the telemetry is paused
+	bool paused;
+	char placeHolder2[3];
 
 	// not the game time, only a timestamp. Used to update the values on the other site of the shared memory
-	unsigned int time;
-	// check if the game and the telemetry is paused
-	bool paused;
+	unsigned long long time;	
+    unsigned long long simulatedTime;
+    unsigned long long renderTime;
 
 	// to make a buffer for changes here and avoid errors later we create a empty room so we fill the first 40 fields, shrink it when you add something above here
-	char buffer[31];
+	char buffer[8];
 
-	//----- END OF FIRST ZONE AT OFFSET 39 -----//
+	//----- END OF FIRST ZONE AT OFFSET 39 -----//in
 
 	//----- START OF SECOND ZONE AT OFFSET 40 -----//
 	// The Secon zone contains unsigned integers and it sorted in sub structures
