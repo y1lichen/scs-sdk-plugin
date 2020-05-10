@@ -96,12 +96,12 @@ namespace SCSSdkClient.Object {
                                };
         }
 
-        internal void SetGameTime(uint gameTime) {
-            CommonValues.GameTime.Value = gameTime;
-            if (gameTime > 0 && gameTime < 4000000000 && JobValues.DeliveryTime.Value > 0) {
-                JobValues.RemainingDeliveryTime.Value = (int) (JobValues.DeliveryTime.Value - gameTime);
+        internal void SetDeliveryTime(uint deliveryTime) {
+            JobValues.DeliveryTime = deliveryTime;
+            if (CommonValues.GameTime.Value > 0 && CommonValues.GameTime.Value< 4000000000 && deliveryTime > 0) {
+                JobValues.RemainingDeliveryTime = (int) (deliveryTime- CommonValues.GameTime.Value);
             } else {
-                JobValues.RemainingDeliveryTime.Value = 0;
+                JobValues.RemainingDeliveryTime = 0;
             }
         }
 

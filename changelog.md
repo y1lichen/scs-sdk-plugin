@@ -1,10 +1,17 @@
 # Changelog
 
+## Rev 10 Update 6
+
+- fix of `RemainingDeliveryTime`. Trough positioning of `GameTime` and `DeliveryTime` in the shared memory, this value was never calculated. #66
+  - To avoid broke other stuff that use this or the shared memory, the shared memory layout wasn't change
+  - Before when setting the `GameTime` the `RemainingDeliveryTime` was set, but `DeliveryTime` wasn't at that point.
+  - Now we set `GameTime` before and when `DeliveryTime` is set we also set `RemainingDeliveryTime` which also makes much more sense.
+
 ## Rev 10 Update 5
 
-- now change `onJob` and `jobFinished` with the present of `jobDelivered` and `jobChancelled`. Before it is changed after leaving the experience screen or sometimes when enter drive mode. 
+- now change `onJob` and `jobFinished` with the present of `jobDelivered` and `jobChancelled`. Before it is changed after leaving the experience screen or sometimes when enter drive mode.
   - Job values are also reseted directly with the event
-- remove variarble `i` from `scs_config_handlers.cpp` and `scs_gameplay_event_handlers.cpp`
+- remove variable `i` from `scs_config_handlers.cpp` and `scs_gameplay_event_handlers.cpp`
 - now `isCargoLoaded` won't be reseted twiced by calling `set_job_values_zero`, instead the `plannedDistanceKm` is reseted correctly
 - **value type changed** timestamp is know a `ulong`  and not a `uint` anymore (sdk value is `unsigned long long`)
 - added 2 new values: `simulation timestamp` and `render timestamp` both are `ulong` values similar to the `timestamp` -> changes in Shared Memory

@@ -67,13 +67,13 @@ namespace SCSSdkClient {
             retData.TelemetryVersion.Major = GetUint();
             retData.TelemetryVersion.Minor = GetUint();
 
-            retData.SetGameTime(GetUint());
+            retData.CommonValues.GameTime = GetUint();
             retData.TruckValues.ConstantsValues.MotorValues.ForwardGearCount = GetUint();
             retData.TruckValues.ConstantsValues.MotorValues.ReverseGearCount = GetUint();
             retData.TruckValues.ConstantsValues.MotorValues.RetarderStepCount = GetUint();
             retData.TruckValues.ConstantsValues.WheelsValues.Count = GetUint();
             retData.TruckValues.ConstantsValues.MotorValues.SelectorCount = GetUint();
-            retData.JobValues.DeliveryTime = GetUint();
+            retData.SetDeliveryTime(GetUint());
             retData.MaxTrailerCount = GetUint();
             retData.JobValues.CargoValues.UnitCount = GetUint();
             retData.JobValues.PlannedDistanceKm = GetUint();
