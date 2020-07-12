@@ -136,64 +136,87 @@ namespace SCSSdkClient {
             }
 
             var time = scsTelemetry.Timestamp;
-            var
-                criticalChange =
-                    false; // critical change are events that could happen (or do happen) when the game is paused and the timestamp could stay still, but data change
+            var updated = false;
+            if (time != lastTime || wasPaused != scsTelemetry.Paused) {
+                // time changed or game state change -> update data
+                Data?.Invoke(scsTelemetry, true);
+                wasPaused = scsTelemetry.Paused;
+                lastTime = time;
+                updated = true;
+            }
 
             //TODO: make it nicer thats a lot of code for such less work
             // Job start event
             if (wasOnJob != scsTelemetry.SpecialEventsValues.OnJob) {
                 wasOnJob = scsTelemetry.SpecialEventsValues.OnJob;
-                criticalChange = true;
-                if (scsTelemetry.SpecialEventsValues.OnJob) {
+                if (wasOnJob) {
+                    if (!updated) {
+                        Data?.Invoke(scsTelemetry, true);
+                        updated = true;
+                    }
+
                     JobStarted?.Invoke(this, new EventArgs());
                 }
             }
 
-
             if (cancelled != scsTelemetry.SpecialEventsValues.JobCancelled) {
                 cancelled = scsTelemetry.SpecialEventsValues.JobCancelled;
-                criticalChange = true;
+                if (cancelled) {
+                    if (!updated) {
+                        Data?.Invoke(scsTelemetry, true);
+                        updated = true;
+                    }
 
-                if (scsTelemetry.SpecialEventsValues.JobCancelled) {
                     JobCancelled?.Invoke(this, new EventArgs());
                 }
             }
 
             if (delivered != scsTelemetry.SpecialEventsValues.JobDelivered) {
-                criticalChange = true;
                 delivered = scsTelemetry.SpecialEventsValues.JobDelivered;
-                if (scsTelemetry.SpecialEventsValues.JobDelivered) {
+                if (delivered) {
+                    if (!updated) {
+                        Data?.Invoke(scsTelemetry, true);
+                        updated = true;
+                    }
+
                     JobDelivered?.Invoke(this, new EventArgs());
                 }
             }
 
             if (fined != scsTelemetry.SpecialEventsValues.Fined) {
                 fined = scsTelemetry.SpecialEventsValues.Fined;
-                if (scsTelemetry.SpecialEventsValues.Fined) {
+                if (fined) {
                     Fined?.Invoke(this, new EventArgs());
                 }
             }
 
             if (tollgate != scsTelemetry.SpecialEventsValues.Tollgate) {
                 tollgate = scsTelemetry.SpecialEventsValues.Tollgate;
-                if (scsTelemetry.SpecialEventsValues.Tollgate) {
+                if (tollgate) {
                     Tollgate?.Invoke(this, new EventArgs());
                 }
             }
 
             if (ferry != scsTelemetry.SpecialEventsValues.Ferry) {
                 ferry = scsTelemetry.SpecialEventsValues.Ferry;
-                criticalChange = true;
-                if (scsTelemetry.SpecialEventsValues.Ferry) {
+                if (ferry) {
+                    if (!updated) {
+                        Data?.Invoke(scsTelemetry, true);
+                        updated = true;
+                    }
+
                     Ferry?.Invoke(this, new EventArgs());
                 }
             }
 
             if (train != scsTelemetry.SpecialEventsValues.Train) {
                 train = scsTelemetry.SpecialEventsValues.Train;
-                criticalChange = true;
-                if (scsTelemetry.SpecialEventsValues.Train) {
+                if (train) {
+                    if (!updated) {
+                        Data?.Invoke(scsTelemetry, true);
+                        updated = true;
+                    }
+
                     Train?.Invoke(this, new EventArgs());
                 }
             }
@@ -214,9 +237,12 @@ namespace SCSSdkClient {
                 }
             }
 
-            Data?.Invoke(scsTelemetry, time != lastTime || criticalChange || wasPaused != scsTelemetry.Paused);
-            wasPaused = scsTelemetry.Paused;
-            lastTime = time;
+            // currently the design is that the event is called, doesn't matter if data changed
+            // also the old demo didn't used the flag and expected to be refreshed each call
+            // so without making a big change also call the event without update with false flag
+            if (!updated) {
+                Data?.Invoke(scsTelemetry, false);
+            }
         }
 #if LOGGING
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) {

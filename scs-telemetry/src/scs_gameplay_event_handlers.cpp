@@ -125,7 +125,7 @@ bool handleGpe(const scs_named_value_t* info, const gameplayType type) {
 // Function: handleCancelledPenalty
 // Event called when job is cancelled
 // The penalty for cancelling the job in native game currency. (Can be 0)
-scsGameplayEventHandle(Cancelled, Penalty) {
+scsGameplayEventHandle(Cancelled, Penalty) { 
     telem_ptr->gameplay_ll.jobCancelledPenalty = current->value.value_s64.value;
 }
 
@@ -186,7 +186,7 @@ scsGameplayEventHandle(Delivered, AutoloadUsed) {
 // Function: handleFinedFineOffence
 // Fine offence type
 scsGameplayEventHandle(Fined, FineOffence) {
-    strncpy(telem_ptr->gameplay_s.fineOffence, current->value.value_string.value, 16);
+    strncpy(telem_ptr->gameplay_s.fineOffence, current->value.value_string.value, 32);
 }
 
 // Function: handleFinedFineAmount

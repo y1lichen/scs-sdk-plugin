@@ -471,7 +471,7 @@ typedef struct scsTelemetryMap_s
 		char jobMarket[32];
 	}config_s;
 	struct {
-		char fineOffence[16];
+		char fineOffence[32];
 		char ferrySourceName[stringsize];
 		char ferryTargetName[stringsize];
 		char ferrySourceId[stringsize];
@@ -482,7 +482,7 @@ typedef struct scsTelemetryMap_s
 		char trainTargetId[stringsize];
 	}gameplay_s;
 
-	char buffer_s[36];
+	char buffer_s[20];
 	//----- END OF 9TH ZONE AT OFFSET 3999 -----//
 
 	//----- START OF 10TH ZONE AT OFFSET 4000 -----//

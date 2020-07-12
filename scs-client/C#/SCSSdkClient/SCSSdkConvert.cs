@@ -311,7 +311,7 @@ namespace SCSSdkClient {
                 retData.JobValues.Market = tempJobMarket.ToEnum<JobMarket>();
             }
 
-            var tempfineOffence = GetString(16);
+            var tempfineOffence = GetString(32);
             if (tempfineOffence?.Length > 0) {
                 retData.GamePlay.FinedEvent.Offence = tempfineOffence.ToEnum<Offence>();
             }
@@ -356,7 +356,7 @@ namespace SCSSdkClient {
             retData.SpecialEventsValues.OnJob = GetBool();
             retData.SpecialEventsValues.JobFinished = GetBool();
 
-            retData.SpecialEventsValues.JobCancelled = GetBool();
+            retData.SpecialEventsValues.JobCancelled = GetBool(); 
             retData.SpecialEventsValues.JobDelivered = GetBool();
             retData.SpecialEventsValues.Fined = GetBool();
             retData.SpecialEventsValues.Tollgate = GetBool();

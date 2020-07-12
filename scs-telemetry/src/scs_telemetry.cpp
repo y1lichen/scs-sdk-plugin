@@ -371,11 +371,12 @@ void set_trailer_values_zero(unsigned int trailer_id = 0) {
     new(&telem_ptr->trailer.trailer[trailer_id]) scsTrailer_t();
 }
 
+
 // Last Fuel Value (set to a high value to avoid to trigger the event directly on start)
 static auto fuel_ticker = 0;
 static auto fuel_ticker2 = 0;
-static auto last_fuel_value = 0;
-static auto current_fuel_value = 0;
+static auto last_fuel_value = 0.0f;
+static auto current_fuel_value = 0.0f;
 static auto refuel = false;
 static auto fuel_tmp = 0.0f;
 static auto start_fuel = 0.0f;
@@ -419,7 +420,7 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
     last_timestamp = info->paused_simulation_time;
     last_simulatedtimestamp = info->simulation_time;
     last_rendertimestamp = info->render_time;
-    
+
     /* Copy over the game timestamp to our telemetry memory */
     if (telem_ptr != nullptr) {
         telem_ptr->time = static_cast<unsigned long long>(timestamp);
@@ -431,6 +432,7 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
 
         // check fuel value
         current_fuel_value = telem_ptr->truck_f.fuel;
+ 
         if(!refuel) {
             start_fuel = fuel_tmp;
             fuel_tmp = telem_ptr->truck_f.fuel;
@@ -441,17 +443,20 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
             if(!refuel) {                
                 refuel = true;
                 clear_refuel_payed_ticker = 0;               
+                
             }
         }else if (current_fuel_value < last_fuel_value) {
             fuel_ticker2 = 0;
             telem_ptr->special_b.refuel = false;
         }
 
-        // refuel is true, but engine is know active? than refuel is finished and payed, fire event   
+        // refuel is true, but engine is now active? than refuel is finished and payed, fire event   
         if(refuel && telem_ptr->truck_b.engineEnabled) {
             refuel = false;
+                     
             telem_ptr->gameplay_f.refuelAmount = telem_ptr->truck_f.fuel - start_fuel;
             telem_ptr->special_b.refuelPayed = true;
+            
         }
 
         // update last value every few ticks (refuel rate is not constant and the plugin side did check every 25 ms so to try a
@@ -469,14 +474,12 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
                 fuel_ticker2 = 0;
                 telem_ptr->special_b.refuel = false;
             }
-
-            last_fuel_value = current_fuel_value;
+           
         }
         fuel_ticker++;
-
-
-
-
+        last_fuel_value = current_fuel_value;
+       
+         
         //TODO: better way for that mess here
         if (telem_ptr->special_b.jobFinished) {
             clear_job_ticker++;
@@ -500,9 +503,13 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
                 }
             }
             else {
-                if (clear_job_ticker > 3) {
-                    clear_job_ticker = 0;
-                    telem_ptr->special_b.jobCancelled = true;
+                // job is cancelled -> user input
+                // job is delivered -> user
+                // this case ? seems to be called the first time the user leaves the profile
+                // else there should no case (i hope and think atm so)
+                 if (clear_job_ticker > 10) {
+                    set_job_values_zero(); 
+                    telem_ptr->special_b.jobFinished = false;
                 }
             }
         }

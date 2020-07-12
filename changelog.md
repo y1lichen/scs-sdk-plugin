@@ -6,6 +6,23 @@
   - To avoid broke other stuff that use this or the shared memory, the shared memory layout wasn't change
   - Before when setting the `GameTime` the `RemainingDeliveryTime` was set, but `DeliveryTime` wasn't at that point.
   - Now we set `GameTime` before and when `DeliveryTime` is set we also set `RemainingDeliveryTime` which also makes much more sense.
+- fix that the gameplay events are called before the data is updated. Now the data is updated and then events are called.
+- the `amount` by the `RefuelEvent` should now delivere better values (sometimes it was a tick behind, that shouldn't be the case anymore).
+- fix that `JobCancelledEvent` is called when a profile is changed, but had an active job (seems to happen on the first profile change).
+
+### SDK Changes
+
+- Update to 1.12
+  - only adds new fine cases to the `FinedEvent`
+
+### known issues
+
+- when changing the profile or truck an `RefuelPayedEvent` can be called. I thought i fixed it, but i need to rethink how to 
+
+### Shared Memory Changes
+
+- Because new fine values can be longer than before (instead of 16 Byte it is now 32 Byte) some values moved at the end of Zone 9.
+	- ferry and train event values 
 
 ## Rev 10 Update 5
 
