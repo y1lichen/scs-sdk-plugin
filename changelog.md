@@ -1,5 +1,9 @@
 # Changelog
 
+## Rev 10 Update 7
+
+- fix (again) of the `onJob`, `jobFinished` flag when `jobDelivered` and `jobChancelled` happens. (see Rev 10 Update 5) 
+
 ## Rev 10 Update 6
 
 - fix of `RemainingDeliveryTime`. Trough positioning of `GameTime` and `DeliveryTime` in the shared memory, this value was never calculated. #66
@@ -29,7 +33,7 @@
 - now change `onJob` and `jobFinished` with the present of `jobDelivered` and `jobChancelled`. Before it is changed after leaving the experience screen or sometimes when enter drive mode.
   - Job values are also reseted directly with the event
 - remove variable `i` from `scs_config_handlers.cpp` and `scs_gameplay_event_handlers.cpp`
-- now `isCargoLoaded` won't be reseted twiced by calling `set_job_values_zero`, instead the `plannedDistanceKm` is reseted correctly
+- now `isCargoLoaded` won't be reseted twice by calling `set_job_values_zero`, instead the `plannedDistanceKm` is reseted correctly
 - **value type changed** timestamp is know a `ulong`  and not a `uint` anymore (sdk value is `unsigned long long`)
 - added 2 new values: `simulation timestamp` and `render timestamp` both are `ulong` values similar to the `timestamp` -> changes in Shared Memory
 - the `update` or `timestamp` bool of the Data Event is now for some special cases also set to true:

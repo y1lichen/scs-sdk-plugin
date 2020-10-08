@@ -406,7 +406,7 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
     // The timer might be sometimes restarted (e.g. after load) while
     // we want to provide continuous time on our output.
 
-    if (info->flags & SCS_TELEMETRY_FRAME_START_FLAG_timer_restart) {
+    if (info->flags & SCS_TELEMETRY_FRAME_START_FLAG_timer_restart) { 
         last_timestamp = 0;
         last_simulatedtimestamp = 0;
         last_rendertimestamp = 0;
@@ -425,7 +425,7 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
     if (telem_ptr != nullptr) {
         telem_ptr->time = static_cast<unsigned long long>(timestamp);
         telem_ptr->simulatedTime = static_cast<unsigned long long>(simulatedtimestamp);
-        telem_ptr->renderTime = static_cast<unsigned long long>(rendertimestamp); 
+        telem_ptr->renderTime = static_cast<unsigned long long>(rendertimestamp);
 
         // Do a non-convential periodic update of this field:
         telem_ptr->truck_b.cruiseControl = telem_ptr->truck_f.cruiseControlSpeed > 0;
@@ -580,12 +580,19 @@ SCSAPI_VOID telemetry_gameplay(const scs_event_t event, const void* const event_
         telem_ptr->special_b.jobCancelled = true;
         telem_ptr->gameplay_ui.jobFinishedTime = telem_ptr->common_ui.time_abs;
         clear_cancelled_ticker = 0;
+        telem_ptr->special_b.onJob = false;
+        telem_ptr->special_b.jobFinished = true;
+        clear_job_ticker = 0;
     }
     else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_job_delivered) == 0) {
         type = delivered;
         telem_ptr->special_b.jobDelivered = true;
-         telem_ptr->gameplay_ui.jobFinishedTime = telem_ptr->common_ui.time_abs;
+        telem_ptr->gameplay_ui.jobFinishedTime = telem_ptr->common_ui.time_abs;
         clear_delivered_ticker = 0;
+        telem_ptr->special_b.onJob = false;
+        telem_ptr->special_b.jobFinished = true;
+        clear_job_ticker = 0;
+
     }
     else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_fined) == 0) {
         type = fined;
@@ -705,7 +712,7 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const e
         is_empty = false;
     }
     // if id of config is "job" but without element and we are on a job -> we finished it now
-    if (type == job && is_empty && telem_ptr->special_b.onJob) {
+    if (type == job && is_empty && telem_ptr->special_b.onJob) { 
         telem_ptr->special_b.onJob = false;
         telem_ptr->special_b.jobFinished = true;
         clear_job_ticker = 0;

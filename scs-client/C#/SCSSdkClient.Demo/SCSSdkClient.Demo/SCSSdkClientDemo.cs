@@ -74,7 +74,7 @@ namespace SCSSdkClient.Demo {
 
 
         private void Telemetry_Data(SCSTelemetry data, bool updated) {
-            if (!updated) return;
+           if (!updated) return;
             try {
                 if (InvokeRequired) {
                     Invoke(new TelemetryData(Telemetry_Data), data, updated);
@@ -133,7 +133,7 @@ namespace SCSSdkClient.Demo {
                 substances.Text = JsonConvert.SerializeObject(data.Substances, Formatting.Indented);
                 gameplayevent.Text = JsonConvert.SerializeObject(data.GamePlay, Formatting.Indented);
                 rtb_fuel.Text = data.TruckValues.CurrentValues.DashboardValues.FuelValue.Amount + " "+ data.SpecialEventsValues.Refuel ;
-                fuel = data.GamePlay.RefuelEvent.Amount;
+                fuel = data.GamePlay.RefuelEvent.Amount; 
 
             } catch (Exception ex) {
                 // ignored atm i found no proper way to shut the telemetry down and down call this anymore when this or another thing is already disposed
