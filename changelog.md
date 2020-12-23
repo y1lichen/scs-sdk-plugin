@@ -2,7 +2,11 @@
 
 ## Rev 10 Update 7
 
-- fix (again) of the `onJob`, `jobFinished` flag when `jobDelivered` and `jobChancelled` happens. (see Rev 10 Update 5) 
+- fix (again) of the `onJob`, `jobFinished` flag when `jobDelivered` and `jobChancelled` happens. (see Rev 10 Update 5)
+
+Later added:
+
+- fix resetting job values when using a train
 
 ## Rev 10 Update 6
 

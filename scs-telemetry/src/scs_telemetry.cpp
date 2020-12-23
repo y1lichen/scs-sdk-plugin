@@ -545,7 +545,6 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
             clear_train_ticker++;
 
             if (clear_train_ticker > 10) {
-                set_job_values_zero();
                 telem_ptr->special_b.train = false;
             }
         }
