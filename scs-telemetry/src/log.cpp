@@ -1,5 +1,4 @@
 ﻿#if LOGGING
-#include <windows.h>
 #include <string>
 #include <ctime>
 #include "log.hpp"
@@ -69,7 +68,7 @@ namespace logger {
 
         // Function: directory_exists
         // check if a directory exists
-        auto directory_exists(const LPCTSTR sz_path) -> BOOL {
+        auto directory_exists(const char* sz_path) -> bool {
             const auto dw_attrib = GetFileAttributes(sz_path);
 
             return (dw_attrib != INVALID_FILE_ATTRIBUTES &&

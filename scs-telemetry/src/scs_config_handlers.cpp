@@ -5,127 +5,127 @@
 #include "scs-telemetry-common.hpp"
 #include "sharedmemory.hpp"
 
-#include "log.hpp" 
+#include "log.hpp"
 
-extern SharedMemory* telem_mem;
-extern scsTelemetryMap_t* telem_ptr;
+extern SharedMemory *telem_mem;
+extern scsTelemetryMap_t *telem_ptr;
 #pragma region scsConfigHandler_t[]
 
 // const: substances_config
 // all handles with config id `substances`
 const scsConfigHandler_t substances_config[] = {
-    {SCS_TELEMETRY_CONFIG_ATTRIBUTE_id, handleSubstancesId}
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_id, handleSubstancesId}
 };
 
 // const: controls_config
 // all handles with config id `controls`
 const scsConfigHandler_t controls_config[] = {
-    {SCS_TELEMETRY_CONFIG_ATTRIBUTE_shifter_type, handleControlsShifterType}
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_shifter_type, handleControlsShifterType}
 };
 
 // const: hshifter_config
 // all handles with config id `hshifter`
 const scsConfigHandler_t hshifter_config[] = {
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_selector_count, handleHShifterSelectorCount},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_slot_gear, handleHShifterResulting},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_selector_count,       handleHShifterSelectorCount},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_slot_gear,            handleHShifterResulting},
         {SCS_TELEMETRY_CONFIG_ATTRIBUTE_slot_handle_position, handleHShifterPosition},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_slot_selectors, handleHShifterBitmask}
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_slot_selectors,       handleHShifterBitmask}
 };
 
 // const: truck_config
 // all handles with config id `truck` 
 const scsConfigHandler_t truck_config[] = {
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand_id, handleTruckBrandId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand, handleTruckBrand},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_id, handleTruckId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_name, handleTruckName},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_fuel_capacity, handleTruckFuelCapacity},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_fuel_warning_factor, handleTruckFuelWarningFactor},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_adblue_capacity, handleTruckAdblueCapacity},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_adblue_warning_factor, handleTruckAdblueWarningFactor},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_air_pressure_warning, handleTruckAirPressureWarning},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_air_pressure_emergency, handleTruckAirPressureEmergency},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_oil_pressure_warning, handleTruckOilPressureWarning},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand_id,                  handleTruckBrandId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand,                     handleTruckBrand},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_id,                        handleTruckId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_name,                      handleTruckName},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_fuel_capacity,             handleTruckFuelCapacity},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_fuel_warning_factor,       handleTruckFuelWarningFactor},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_adblue_capacity,           handleTruckAdblueCapacity},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_adblue_warning_factor,     handleTruckAdblueWarningFactor},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_air_pressure_warning,      handleTruckAirPressureWarning},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_air_pressure_emergency,    handleTruckAirPressureEmergency},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_oil_pressure_warning,      handleTruckOilPressureWarning},
         {SCS_TELEMETRY_CONFIG_ATTRIBUTE_water_temperature_warning, handleTruckWaterTemperatureWarning},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_battery_voltage_warning, handleTruckBatteryVoltageWarning},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_rpm_limit, handleTruckRpmLimit},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_forward_gear_count, handleTruckFGearCount},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_reverse_gear_count, handleTruckRGearCount},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_retarder_step_count, handleTruckRetarderStepCount},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cabin_position, handleTruckCabinPosition},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_head_position, handleTruckHeadPosition},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_hook_position, handleTruckHookPosition},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count, handleTruckWheelCount},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position, handleTruckWheelPosition},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_steerable, handleTruckWheelSteerable},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_simulated, handleTruckWheelSimulated},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_radius, handleTruckWheelRadius},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_powered, handleTruckWheelPowered},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_liftable, handleTruckWheelLiftable},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_differential_ratio, handleTruckGearDifferential},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_forward_ratio, handleTruckGearForwardRatio},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_reverse_ratio, handleTruckGearReverseRatio},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate, handleTruckLicensePlate},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country, handleTruckLicensePlateCountry},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country_id, handleTruckLicensePlateCountryId}
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_battery_voltage_warning,   handleTruckBatteryVoltageWarning},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_rpm_limit,                 handleTruckRpmLimit},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_forward_gear_count,        handleTruckFGearCount},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_reverse_gear_count,        handleTruckRGearCount},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_retarder_step_count,       handleTruckRetarderStepCount},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cabin_position,            handleTruckCabinPosition},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_head_position,             handleTruckHeadPosition},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_hook_position,             handleTruckHookPosition},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count,               handleTruckWheelCount},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position,            handleTruckWheelPosition},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_steerable,           handleTruckWheelSteerable},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_simulated,           handleTruckWheelSimulated},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_radius,              handleTruckWheelRadius},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_powered,             handleTruckWheelPowered},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_liftable,            handleTruckWheelLiftable},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_differential_ratio,        handleTruckGearDifferential},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_forward_ratio,             handleTruckGearForwardRatio},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_reverse_ratio,             handleTruckGearReverseRatio},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate,             handleTruckLicensePlate},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country,     handleTruckLicensePlateCountry},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country_id,  handleTruckLicensePlateCountryId}
 };
 
 // const: trailer_config
 // all handles with config id `trailer`
 const scsConfigHandler_t trailer_config[] = {
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_id, handleTrailerId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_accessory_id, handleTrailerCargoAccessoryId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_hook_position, handleTrailerHookPosition},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count, handleTrailerWheelCount},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position, handleTrailerWheelOffset},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_steerable, handleTrailerWheelSteerable},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_simulated, handleTrailerWheelSimulated},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_radius, handleTrailerWheelRadius},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_powered, handleTrailerWheelPowered},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_liftable, handleTrailerWheelLiftable},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_body_type, handleTrailerBodyType},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand_id, handleTrailerBrandId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand, handleTrailerBrand},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_name, handleTrailerName},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_chain_type, handleTrailerChainType},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate, handleTrailerLicensePlate},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country, handleTrailerLicensePlateCountry},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_id,                       handleTrailerId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_accessory_id,       handleTrailerCargoAccessoryId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_hook_position,            handleTrailerHookPosition},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count,              handleTrailerWheelCount},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position,           handleTrailerWheelOffset},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_steerable,          handleTrailerWheelSteerable},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_simulated,          handleTrailerWheelSimulated},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_radius,             handleTrailerWheelRadius},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_powered,            handleTrailerWheelPowered},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_liftable,           handleTrailerWheelLiftable},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_body_type,                handleTrailerBodyType},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand_id,                 handleTrailerBrandId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand,                    handleTrailerBrand},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_name,                     handleTrailerName},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_chain_type,               handleTrailerChainType},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate,            handleTrailerLicensePlate},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country,    handleTrailerLicensePlateCountry},
         {SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country_id, handleTrailerLicensePlateCountryId}
 };
 
 // const: job_config
 // all handles with config id `job`
 const scsConfigHandler_t job_config[] = {
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_id, handleJobCargoId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo, handleJobCargo},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_mass, handleJobCargoMass},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_city_id, handleJobCityDstId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_city, handleJobCityDst},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_city_id, handleJobCitySrcId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_city, handleJobCitySrc},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_id,               handleJobCargoId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo,                  handleJobCargo},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_mass,             handleJobCargoMass},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_city_id,    handleJobCityDstId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_city,       handleJobCityDst},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_city_id,         handleJobCitySrcId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_city,            handleJobCitySrc},
         {SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_company_id, handleJobCompDstId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_company, handleJobCompDst},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_company_id, handleJobCompSrcId},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_company, handleJobCompSrc},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_income, handleJobIncome},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_delivery_time, handleJobDeliveryTime},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_is_cargo_loaded, handleJobIsCargoLoaded},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_job_market, handleJobJobMarket},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_special_job, handleJobSpecialJob},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_count, handleJobUnitCount},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_mass, handleJobUnitMass},
-        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_planned_distance_km, handleJobPlannedDistanceKm}
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_company,    handleJobCompDst},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_company_id,      handleJobCompSrcId},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_company,         handleJobCompSrc},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_income,                 handleJobIncome},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_delivery_time,          handleJobDeliveryTime},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_is_cargo_loaded,        handleJobIsCargoLoaded},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_job_market,             handleJobJobMarket},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_special_job,            handleJobSpecialJob},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_count,       handleJobUnitCount},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_unit_mass,        handleJobUnitMass},
+        {SCS_TELEMETRY_CONFIG_ATTRIBUTE_planned_distance_km,    handleJobPlannedDistanceKm}
 };
 
 // const: length_configs
 // contains the length of the handle config arrays
 const int length_configs[] = {
-    sizeof substances_config / sizeof*substances_config,
-    sizeof controls_config / sizeof*controls_config,
-    sizeof hshifter_config / sizeof*hshifter_config,
-    sizeof truck_config / sizeof*truck_config,
-    sizeof trailer_config / sizeof*trailer_config,
-    sizeof job_config / sizeof*job_config
+        sizeof substances_config / sizeof *substances_config,
+        sizeof controls_config / sizeof *controls_config,
+        sizeof hshifter_config / sizeof *hshifter_config,
+        sizeof truck_config / sizeof *truck_config,
+        sizeof trailer_config / sizeof *trailer_config,
+        sizeof job_config / sizeof *job_config
 };
 #pragma endregion Contains all handler arrays
 
@@ -146,31 +146,31 @@ const int length_configs[] = {
 
 
 */
-bool handleCfg(const scs_named_value_t* info, const configType type, const unsigned int trailer_id) {
-    const scsConfigHandler_t* configs = nullptr;
+bool handleCfg(const scs_named_value_t *info, const configType type, const unsigned int trailer_id) {
+    const scsConfigHandler_t *configs = nullptr;
     switch (type) {
-    case substances:
-        configs = substances_config;
-        break;
-    case controls:
-        configs = controls_config;
-        break;
-    case hshifter:
-        configs = hshifter_config;
-        break;
-    case truck:
-        configs = truck_config;
-        break;
-    case trailer:
-        configs = trailer_config;
-        break;
-    case job:
-        configs = job_config;
-        break;
-    default:
-        return false;
+        case substances:
+            configs = substances_config;
+            break;
+        case controls:
+            configs = controls_config;
+            break;
+        case hshifter:
+            configs = hshifter_config;
+            break;
+        case truck:
+            configs = truck_config;
+            break;
+        case trailer:
+            configs = trailer_config;
+            break;
+        case job:
+            configs = job_config;
+            break;
+        default:
+            return false;
     }
-    
+
     for (auto index = 0; index < length_configs[type]; index++) {
         if (strcmp(configs->id, info->name) == 0) {
             if (telem_ptr) {
@@ -211,6 +211,7 @@ scsConfigHandle(Substances, Id) {
 scsConfigHandle(Controls, ShifterType) {
     strncpy(telem_ptr->config_s.shifterType, current->value.value_string.value, 16);
 }
+
 #pragma endregion All handler of the id controls
 
 #pragma region  handleHShifter
@@ -248,9 +249,11 @@ scsConfigHandle(HShifter, Bitmask) {
         telem_ptr->truck_ui.hshifterBitmask[gear] = value;
     }
 }
+
 #pragma  endregion  All handler of the id hshifter
 
 #pragma region handleTruck
+
 scsConfigHandle(Truck, BrandId) {
     strncpy(telem_ptr->config_s.truckBrandId, current->value.value_string.value, stringsize);
 }
@@ -432,9 +435,11 @@ scsConfigHandle(Truck, LicensePlateCountry) {
 scsConfigHandle(Truck, LicensePlateCountryId) {
     strncpy(telem_ptr->config_s.truckLicensePlateCountryId, current->value.value_string.value, stringsize);
 }
+
 #pragma endregion  All handler of the id truck
 
 #pragma region handleTrailer
+
 scsConfigHandle(Trailer, Id) {
     strncpy(telem_ptr->trailer.trailer[trailer_id].con_s.id, current->value.value_string.value, stringsize);
 }
@@ -549,6 +554,7 @@ scsConfigHandle(Trailer, LicensePlateCountryId) {
 
 
 #pragma region handleJob
+
 scsConfigHandle(Job, CargoId) {
     strncpy(telem_ptr->config_s.cargoId, current->value.value_string.value, stringsize);
 }
@@ -623,7 +629,8 @@ scsConfigHandle(Job, UnitMass) {
     telem_ptr->config_f.unitMass = current->value.value_float.value;
 }
 
-scsConfigHandle(Job,PlannedDistanceKm) { 
+scsConfigHandle(Job, PlannedDistanceKm) {
     telem_ptr->config_ui.plannedDistanceKm = current->value.value_u32.value;
 }
+
 #pragma endregion All handler of the id job

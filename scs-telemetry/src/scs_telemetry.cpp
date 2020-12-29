@@ -1,14 +1,9 @@
-//Windows stuff.
-
-//TODO: cleanup file 900 lines are to many and there is much to do in an other file or class
-#define WINVER 0x0500
-#define WIN32_WINNT 0x0500
-
-#include <windows.h>
 #include <cassert>
 #include <cstdarg>
 #include <algorithm>
 #include <string>
+#include <stdio.h>
+
 // SDK
 #include "scssdk_telemetry.h"
 #include "eurotrucks2/scssdk_eut2.h"
@@ -22,6 +17,7 @@
 #include "scs_config_handlers.hpp"
 #include "scs_gameplay_event_handlers.hpp"
 #include <log.hpp>
+#include <cstring>
 
 #define UNUSED(x)
 /**
@@ -36,14 +32,14 @@
 #define REGISTER_CHANNEL_TRAILER(id, name, type, to) version_params->register_for_channel((std::string("trailer.")+std::to_string(id)+std::string("."#name)).c_str(), SCS_U32_NIL, SCS_VALUE_TYPE_##type, SCS_TELEMETRY_CHANNEL_FLAG_no_value, telemetry_store_##type, &( to ))
 #define REGISTER_CHANNEL_INDEX(name, type, to, index) version_params->register_for_channel(SCS_TELEMETRY_##name, index, SCS_VALUE_TYPE_##type, SCS_TELEMETRY_CHANNEL_FLAG_no_value, telemetry_store_##type, &( to ))
 #define REGISTER_CHANNEL_TRAILER_INDEX(id, name, type, to, index) version_params->register_for_channel((std::string("trailer.")+std::to_string(id)+std::string("."#name)).c_str(), index, SCS_VALUE_TYPE_##type, SCS_TELEMETRY_CHANNEL_FLAG_no_value, telemetry_store_##type, &( to ))
-#define REGISTER_SPECIFIC_CHANNEL(name, type, handler,to) version_params->register_for_channel(SCS_TELEMETRY_##name, SCS_U32_NIL, SCS_VALUE_TYPE_##type, SCS_TELEMETRY_CHANNEL_FLAG_no_value, handler, &( to ))
+#define REGISTER_SPECIFIC_CHANNEL(name, type, handler, to) version_params->register_for_channel(SCS_TELEMETRY_##name, SCS_U32_NIL, SCS_VALUE_TYPE_##type, SCS_TELEMETRY_CHANNEL_FLAG_no_value, handler, &( to ))
 
-SharedMemory* telem_mem;
-scsTelemetryMap_t* telem_ptr;
+SharedMemory *telem_mem;
+scsTelemetryMap_t *telem_ptr;
 
 // const: scs_mmf_name
 // Name/Location of the Shared Memory
-const wchar_t* scs_mmf_name = SCS_PLUGIN_MMF_NAME;
+const char *scs_mmf_name = SCS_PLUGIN_MMF_NAME;
 
 // ptr: game_log
 // Used to write to the game log
@@ -61,7 +57,7 @@ scs_log_t game_log = nullptr;
 
 // Function: log_line
 // Used to write to the in game console log
-void log_line(const scs_log_type_t type, const char* const text, ...) {
+void log_line(const scs_log_type_t type, const char *const text, ...) {
     if (!game_log) {
         return;
     }
@@ -69,7 +65,7 @@ void log_line(const scs_log_type_t type, const char* const text, ...) {
 
     va_list args;
     va_start(args, text);
-    vsnprintf_s(formated, sizeof formated, _TRUNCATE, text, args);
+    vsnprintf(formated, sizeof formated, text, args);
     formated[sizeof formated - 1] = 0;
     va_end(args);
 
@@ -78,7 +74,7 @@ void log_line(const scs_log_type_t type, const char* const text, ...) {
 
 // Function: log_line
 // Used to write to the in game console log as error (debugging)
-void log_line(const char* const text, ...) {
+void log_line(const char *const text, ...) {
     if (!game_log) {
         return;
     }
@@ -86,7 +82,7 @@ void log_line(const char* const text, ...) {
 
     va_list args;
     va_start(args, text);
-    vsnprintf_s(formated, sizeof formated, _TRUNCATE, text, args);
+    vsnprintf(formated, sizeof formated, text, args);
     formated[sizeof formated - 1] = 0;
     va_end(args);
 
@@ -96,24 +92,22 @@ void log_line(const char* const text, ...) {
 // check if the version is correct
 bool check_min_version(unsigned const int min_ets2, unsigned const int min_ats) {
 
-    return telem_ptr->scs_values.game == ETS2 && telem_ptr->scs_values.version_minor >= min_ets2 || telem_ptr
-                                                                                                    ->scs_values.game ==
-        ATS && telem_ptr->scs_values.version_minor >= min_ats;
+    return (telem_ptr->scs_values.game == ETS2 && telem_ptr->scs_values.version_minor >= min_ets2) ||
+           (telem_ptr->scs_values.game == ATS && telem_ptr->scs_values.version_minor >= min_ats);
 
 }
 
 bool check_max_version(unsigned const int max_ets2, unsigned const int max_ats) {
 
-    return telem_ptr->scs_values.game == ETS2 && telem_ptr->scs_values.version_minor <= max_ets2 || telem_ptr
-                                                                                                    ->scs_values.game ==
-        ATS && telem_ptr->scs_values.version_minor <= max_ats;
+    return (telem_ptr->scs_values.game == ETS2 && telem_ptr->scs_values.version_minor <= max_ets2) ||
+           (telem_ptr->scs_values.game == ATS && telem_ptr->scs_values.version_minor <= max_ats);
 
 }
 
 // Function: log_configs
 // It print every config event that appears to the in game log
 // careful, create a lot of logs so that fast parts are not readable anymore in the log window
-void log_configs(const scs_telemetry_configuration_t* info) {
+void log_configs(const scs_telemetry_configuration_t *info) {
     log_line("Configuration: %s", info->id);
     for (auto current = info->attributes; current->name; ++current) {
 
@@ -121,93 +115,93 @@ void log_configs(const scs_telemetry_configuration_t* info) {
             // log_line("[%u]", static_cast<unsigned>(current->index));
         }
         switch (current->value.type) {
-        case SCS_VALUE_TYPE_INVALID: {
-            log_line(" %s none", current->name);
-            break;
-        }
-        case SCS_VALUE_TYPE_bool: {
-            log_line(" %s bool = %s", current->name, current->value.value_bool.value ? "true" : "false");
-            break;
-        }
-        case SCS_VALUE_TYPE_s32: {
-            log_line(" %s s32 = %d", current->name, static_cast<int>(current->value.value_s32.value));
-            break;
-        }
-        case SCS_VALUE_TYPE_u32: {
-            log_line(" %s u32 = %u", current->name, static_cast<unsigned>(current->value.value_u32.value));
-            break;
-        }
-        case SCS_VALUE_TYPE_u64: {
-            log_line(" %s u64 = %" SCS_PF_U64, current->name, current->value.value_u64.value);
-            break;
-        }
-        case SCS_VALUE_TYPE_float: {
-            log_line(" %s float = %f", current->name, current->value.value_float.value);
-            break;
-        }
-        case SCS_VALUE_TYPE_double: {
-            log_line(" %s double = %f", current->name, current->value.value_double.value);
-            break;
-        }
-        case SCS_VALUE_TYPE_fvector: {
-            log_line(
-                " %s fvector = (%f,%f,%f)", current->name,
-                current->value.value_fvector.x,
-                current->value.value_fvector.y,
-                current->value.value_fvector.z
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_dvector: {
-            log_line(
-                " %s dvector = (%f,%f,%f)", current->name,
-                current->value.value_dvector.x,
-                current->value.value_dvector.y,
-                current->value.value_dvector.z
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_euler: {
-            log_line(
-                " %s euler = h:%f p:%f r:%f", current->name,
-                current->value.value_euler.heading * 360.0f,
-                current->value.value_euler.pitch * 360.0f,
-                current->value.value_euler.roll * 360.0f
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_fplacement: {
-            log_line(
-                " %s fplacement = (%f,%f,%f) h:%f p:%f r:%f", current->name,
-                current->value.value_fplacement.position.x,
-                current->value.value_fplacement.position.y,
-                current->value.value_fplacement.position.z,
-                current->value.value_fplacement.orientation.heading * 360.0f,
-                current->value.value_fplacement.orientation.pitch * 360.0f,
-                current->value.value_fplacement.orientation.roll * 360.0f
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_dplacement: {
-            log_line(
-                " %s dplacement = (%f,%f,%f) h:%f p:%f r:%f", current->name,
-                current->value.value_dplacement.position.x,
-                current->value.value_dplacement.position.y,
-                current->value.value_dplacement.position.z,
-                current->value.value_dplacement.orientation.heading * 360.0f,
-                current->value.value_dplacement.orientation.pitch * 360.0f,
-                current->value.value_dplacement.orientation.roll * 360.0f
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_string: {
-            log_line(" %s string = %s", current->name, current->value.value_string.value);
-            break;
-        }
-        default: {
-            log_line(" %s unknown", current->name);
-            break;
-        }
+            case SCS_VALUE_TYPE_INVALID: {
+                log_line(" %s none", current->name);
+                break;
+            }
+            case SCS_VALUE_TYPE_bool: {
+                log_line(" %s bool = %s", current->name, current->value.value_bool.value ? "true" : "false");
+                break;
+            }
+            case SCS_VALUE_TYPE_s32: {
+                log_line(" %s s32 = %d", current->name, static_cast<int>(current->value.value_s32.value));
+                break;
+            }
+            case SCS_VALUE_TYPE_u32: {
+                log_line(" %s u32 = %u", current->name, static_cast<unsigned>(current->value.value_u32.value));
+                break;
+            }
+            case SCS_VALUE_TYPE_u64: {
+                log_line(" %s u64 = %" SCS_PF_U64, current->name, current->value.value_u64.value);
+                break;
+            }
+            case SCS_VALUE_TYPE_float: {
+                log_line(" %s float = %f", current->name, current->value.value_float.value);
+                break;
+            }
+            case SCS_VALUE_TYPE_double: {
+                log_line(" %s double = %f", current->name, current->value.value_double.value);
+                break;
+            }
+            case SCS_VALUE_TYPE_fvector: {
+                log_line(
+                        " %s fvector = (%f,%f,%f)", current->name,
+                        current->value.value_fvector.x,
+                        current->value.value_fvector.y,
+                        current->value.value_fvector.z
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_dvector: {
+                log_line(
+                        " %s dvector = (%f,%f,%f)", current->name,
+                        current->value.value_dvector.x,
+                        current->value.value_dvector.y,
+                        current->value.value_dvector.z
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_euler: {
+                log_line(
+                        " %s euler = h:%f p:%f r:%f", current->name,
+                        current->value.value_euler.heading * 360.0f,
+                        current->value.value_euler.pitch * 360.0f,
+                        current->value.value_euler.roll * 360.0f
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_fplacement: {
+                log_line(
+                        " %s fplacement = (%f,%f,%f) h:%f p:%f r:%f", current->name,
+                        current->value.value_fplacement.position.x,
+                        current->value.value_fplacement.position.y,
+                        current->value.value_fplacement.position.z,
+                        current->value.value_fplacement.orientation.heading * 360.0f,
+                        current->value.value_fplacement.orientation.pitch * 360.0f,
+                        current->value.value_fplacement.orientation.roll * 360.0f
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_dplacement: {
+                log_line(
+                        " %s dplacement = (%f,%f,%f) h:%f p:%f r:%f", current->name,
+                        current->value.value_dplacement.position.x,
+                        current->value.value_dplacement.position.y,
+                        current->value.value_dplacement.position.z,
+                        current->value.value_dplacement.orientation.heading * 360.0f,
+                        current->value.value_dplacement.orientation.pitch * 360.0f,
+                        current->value.value_dplacement.orientation.roll * 360.0f
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_string: {
+                log_line(" %s string = %s", current->name, current->value.value_string.value);
+                break;
+            }
+            default: {
+                log_line(" %s unknown", current->name);
+                break;
+            }
 
         }
 
@@ -217,7 +211,7 @@ void log_configs(const scs_telemetry_configuration_t* info) {
 // Function: log_events
 // It print every gameplay event that appears to the in game log
 // careful, create a lot of logs so that fast parts are not readable anymore in the log window
-void log_events(const scs_telemetry_gameplay_event_t* info) {
+void log_events(const scs_telemetry_gameplay_event_t *info) {
     log_line("^Gameplayevents: %s", info->id);
     for (auto current = info->attributes; current->name; ++current) {
 
@@ -225,93 +219,93 @@ void log_events(const scs_telemetry_gameplay_event_t* info) {
             // log_line("[%u]", static_cast<unsigned>(current->index));
         }
         switch (current->value.type) {
-        case SCS_VALUE_TYPE_INVALID: {
-            log_line(" %s none", current->name);
-            break;
-        }
-        case SCS_VALUE_TYPE_bool: {
-            log_line(" %s bool = %s", current->name, current->value.value_bool.value ? "true" : "false");
-            break;
-        }
-        case SCS_VALUE_TYPE_s32: {
-            log_line(" %s s32 = %d", current->name, static_cast<int>(current->value.value_s32.value));
-            break;
-        }
-        case SCS_VALUE_TYPE_u32: {
-            log_line(" %s u32 = %u", current->name, static_cast<unsigned>(current->value.value_u32.value));
-            break;
-        }
-        case SCS_VALUE_TYPE_u64: {
-            log_line(" %s u64 = %" SCS_PF_U64, current->name, current->value.value_u64.value);
-            break;
-        }
-        case SCS_VALUE_TYPE_float: {
-            log_line(" %s float = %f", current->name, current->value.value_float.value);
-            break;
-        }
-        case SCS_VALUE_TYPE_double: {
-            log_line(" %s double = %f", current->name, current->value.value_double.value);
-            break;
-        }
-        case SCS_VALUE_TYPE_fvector: {
-            log_line(
-                " %s fvector = (%f,%f,%f)", current->name,
-                current->value.value_fvector.x,
-                current->value.value_fvector.y,
-                current->value.value_fvector.z
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_dvector: {
-            log_line(
-                " %s dvector = (%f,%f,%f)", current->name,
-                current->value.value_dvector.x,
-                current->value.value_dvector.y,
-                current->value.value_dvector.z
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_euler: {
-            log_line(
-                " %s euler = h:%f p:%f r:%f", current->name,
-                current->value.value_euler.heading * 360.0f,
-                current->value.value_euler.pitch * 360.0f,
-                current->value.value_euler.roll * 360.0f
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_fplacement: {
-            log_line(
-                " %s fplacement = (%f,%f,%f) h:%f p:%f r:%f", current->name,
-                current->value.value_fplacement.position.x,
-                current->value.value_fplacement.position.y,
-                current->value.value_fplacement.position.z,
-                current->value.value_fplacement.orientation.heading * 360.0f,
-                current->value.value_fplacement.orientation.pitch * 360.0f,
-                current->value.value_fplacement.orientation.roll * 360.0f
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_dplacement: {
-            log_line(
-                " %s dplacement = (%f,%f,%f) h:%f p:%f r:%f", current->name,
-                current->value.value_dplacement.position.x,
-                current->value.value_dplacement.position.y,
-                current->value.value_dplacement.position.z,
-                current->value.value_dplacement.orientation.heading * 360.0f,
-                current->value.value_dplacement.orientation.pitch * 360.0f,
-                current->value.value_dplacement.orientation.roll * 360.0f
-            );
-            break;
-        }
-        case SCS_VALUE_TYPE_string: {
-            log_line(" %s string = %s", current->name, current->value.value_string.value);
-            break;
-        }
-        default: {
-            log_line(" %s unknown", current->name);
-            break;
-        }
+            case SCS_VALUE_TYPE_INVALID: {
+                log_line(" %s none", current->name);
+                break;
+            }
+            case SCS_VALUE_TYPE_bool: {
+                log_line(" %s bool = %s", current->name, current->value.value_bool.value ? "true" : "false");
+                break;
+            }
+            case SCS_VALUE_TYPE_s32: {
+                log_line(" %s s32 = %d", current->name, static_cast<int>(current->value.value_s32.value));
+                break;
+            }
+            case SCS_VALUE_TYPE_u32: {
+                log_line(" %s u32 = %u", current->name, static_cast<unsigned>(current->value.value_u32.value));
+                break;
+            }
+            case SCS_VALUE_TYPE_u64: {
+                log_line(" %s u64 = %" SCS_PF_U64, current->name, current->value.value_u64.value);
+                break;
+            }
+            case SCS_VALUE_TYPE_float: {
+                log_line(" %s float = %f", current->name, current->value.value_float.value);
+                break;
+            }
+            case SCS_VALUE_TYPE_double: {
+                log_line(" %s double = %f", current->name, current->value.value_double.value);
+                break;
+            }
+            case SCS_VALUE_TYPE_fvector: {
+                log_line(
+                        " %s fvector = (%f,%f,%f)", current->name,
+                        current->value.value_fvector.x,
+                        current->value.value_fvector.y,
+                        current->value.value_fvector.z
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_dvector: {
+                log_line(
+                        " %s dvector = (%f,%f,%f)", current->name,
+                        current->value.value_dvector.x,
+                        current->value.value_dvector.y,
+                        current->value.value_dvector.z
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_euler: {
+                log_line(
+                        " %s euler = h:%f p:%f r:%f", current->name,
+                        current->value.value_euler.heading * 360.0f,
+                        current->value.value_euler.pitch * 360.0f,
+                        current->value.value_euler.roll * 360.0f
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_fplacement: {
+                log_line(
+                        " %s fplacement = (%f,%f,%f) h:%f p:%f r:%f", current->name,
+                        current->value.value_fplacement.position.x,
+                        current->value.value_fplacement.position.y,
+                        current->value.value_fplacement.position.z,
+                        current->value.value_fplacement.orientation.heading * 360.0f,
+                        current->value.value_fplacement.orientation.pitch * 360.0f,
+                        current->value.value_fplacement.orientation.roll * 360.0f
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_dplacement: {
+                log_line(
+                        " %s dplacement = (%f,%f,%f) h:%f p:%f r:%f", current->name,
+                        current->value.value_dplacement.position.x,
+                        current->value.value_dplacement.position.y,
+                        current->value.value_dplacement.position.z,
+                        current->value.value_dplacement.orientation.heading * 360.0f,
+                        current->value.value_dplacement.orientation.pitch * 360.0f,
+                        current->value.value_dplacement.orientation.roll * 360.0f
+                );
+                break;
+            }
+            case SCS_VALUE_TYPE_string: {
+                log_line(" %s string = %s", current->name, current->value.value_string.value);
+                break;
+            }
+            default: {
+                log_line(" %s unknown", current->name);
+                break;
+            }
 
         }
 
@@ -383,7 +377,7 @@ static auto start_fuel = 0.0f;
 
 // Function: telemetry_frame_start
 // Register telemetry values
-SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* const event_info,
+SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void *const event_info,
                                   scs_context_t UNUSED(context)) {
 
     const auto info = static_cast<const scs_telemetry_frame_start_t *>(event_info);
@@ -406,7 +400,7 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
     // The timer might be sometimes restarted (e.g. after load) while
     // we want to provide continuous time on our output.
 
-    if (info->flags & SCS_TELEMETRY_FRAME_START_FLAG_timer_restart) { 
+    if (info->flags & SCS_TELEMETRY_FRAME_START_FLAG_timer_restart) {
         last_timestamp = 0;
         last_simulatedtimestamp = 0;
         last_rendertimestamp = 0;
@@ -432,31 +426,31 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
 
         // check fuel value
         current_fuel_value = telem_ptr->truck_f.fuel;
- 
-        if(!refuel) {
+
+        if (!refuel) {
             start_fuel = fuel_tmp;
             fuel_tmp = telem_ptr->truck_f.fuel;
         }
         if (current_fuel_value > last_fuel_value && last_fuel_value > 0) {
             fuel_ticker2 = 0;
             telem_ptr->special_b.refuel = true;
-            if(!refuel) {                
+            if (!refuel) {
                 refuel = true;
-                clear_refuel_payed_ticker = 0;               
-                
+                clear_refuel_payed_ticker = 0;
+
             }
-        }else if (current_fuel_value < last_fuel_value) {
+        } else if (current_fuel_value < last_fuel_value) {
             fuel_ticker2 = 0;
             telem_ptr->special_b.refuel = false;
         }
 
         // refuel is true, but engine is now active? than refuel is finished and payed, fire event   
-        if(refuel && telem_ptr->truck_b.engineEnabled) {
+        if (refuel && telem_ptr->truck_b.engineEnabled) {
             refuel = false;
-                     
+
             telem_ptr->gameplay_f.refuelAmount = telem_ptr->truck_f.fuel - start_fuel;
             telem_ptr->special_b.refuelPayed = true;
-            
+
         }
 
         // update last value every few ticks (refuel rate is not constant and the plugin side did check every 25 ms so to try a
@@ -466,20 +460,19 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
 
             if (current_fuel_value == last_fuel_value) {
                 fuel_ticker2++;
-            }
-            else {
+            } else {
                 fuel_ticker2 = 0;
             }
             if (fuel_ticker2 >= 5) {
                 fuel_ticker2 = 0;
                 telem_ptr->special_b.refuel = false;
             }
-           
+
         }
         fuel_ticker++;
         last_fuel_value = current_fuel_value;
-       
-         
+
+
         //TODO: better way for that mess here
         if (telem_ptr->special_b.jobFinished) {
             clear_job_ticker++;
@@ -492,8 +485,7 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
                     telem_ptr->special_b.jobCancelled = false;
                     telem_ptr->special_b.jobFinished = false;
                 }
-            }
-            else if (telem_ptr->special_b.jobDelivered) {
+            } else if (telem_ptr->special_b.jobDelivered) {
                 clear_delivered_ticker++;
 
                 if (clear_delivered_ticker > 10) {
@@ -501,14 +493,13 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
                     telem_ptr->special_b.jobDelivered = false;
                     telem_ptr->special_b.jobFinished = false;
                 }
-            }
-            else {
+            } else {
                 // job is cancelled -> user input
                 // job is delivered -> user
                 // this case ? seems to be called the first time the user leaves the profile
                 // else there should no case (i hope and think atm so)
-                 if (clear_job_ticker > 10) {
-                    set_job_values_zero(); 
+                if (clear_job_ticker > 10) {
+                    set_job_values_zero();
                     telem_ptr->special_b.jobFinished = false;
                 }
             }
@@ -554,10 +545,10 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void* c
 
 // Function: telemetry_pause
 // called if the game fires the event start/pause. Used to set the paused value
-SCSAPI_VOID telemetry_pause(const scs_event_t event, const void* const UNUSED(event_info),
+SCSAPI_VOID telemetry_pause(const scs_event_t event, const void *const UNUSED(event_info),
                             scs_context_t UNUSED(context)) {
 #if LOGGING
-	logger::flush();
+    logger::flush();
 #endif
     if (telem_ptr != nullptr) {
         telem_ptr->paused = event == SCS_TELEMETRY_EVENT_paused;
@@ -565,10 +556,10 @@ SCSAPI_VOID telemetry_pause(const scs_event_t event, const void* const UNUSED(ev
 }
 
 
-SCSAPI_VOID telemetry_gameplay(const scs_event_t event, const void* const event_info, scs_context_t UNUSED(context)) {
+SCSAPI_VOID telemetry_gameplay(const scs_event_t event, const void *const event_info, scs_context_t UNUSED(context)) {
     //  An event called when a gameplay event such as job finish happens
     const auto info = static_cast<const scs_telemetry_gameplay_event_t *>(
-        event_info);
+            event_info);
 
     // uncomment to log every config, should work but with function not tested ^^`
     //log_events(info);
@@ -582,8 +573,7 @@ SCSAPI_VOID telemetry_gameplay(const scs_event_t event, const void* const event_
         telem_ptr->special_b.onJob = false;
         telem_ptr->special_b.jobFinished = true;
         clear_job_ticker = 0;
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_job_delivered) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_job_delivered) == 0) {
         type = delivered;
         telem_ptr->special_b.jobDelivered = true;
         telem_ptr->gameplay_ui.jobFinishedTime = telem_ptr->common_ui.time_abs;
@@ -592,28 +582,23 @@ SCSAPI_VOID telemetry_gameplay(const scs_event_t event, const void* const event_
         telem_ptr->special_b.jobFinished = true;
         clear_job_ticker = 0;
 
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_fined) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_fined) == 0) {
         type = fined;
         telem_ptr->special_b.fined = true;
         clear_fined_ticker = 0;
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_tollgate_paid) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_tollgate_paid) == 0) {
         type = tollgate;
         telem_ptr->special_b.tollgate = true;
         clear_tollgate_ticker = 0;
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_use_ferry) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_use_ferry) == 0) {
         type = ferry;
         telem_ptr->special_b.ferry = true;
         clear_ferry_ticker = 0;
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_use_train) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_GAMEPLAY_EVENT_player_use_train) == 0) {
         type = train;
         telem_ptr->special_b.train = true;
         clear_train_ticker = 0;
-    }
-    else {
+    } else {
         log_line(SCS_LOG_TYPE_warning, "Something went wrong with this gameplay event %s", info->id);
     }
 
@@ -637,44 +622,37 @@ SCSAPI_VOID telemetry_gameplay(const scs_event_t event, const void* const event_
 
 // Function: telemetry_configuration
 // called if the game fires the event configuration. Used to handle all the configuration values
-SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const event_info,
+SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void *const event_info,
                                     scs_context_t UNUSED(context)) {
     // On configuration change, this function is called.
     const auto info = static_cast<const scs_telemetry_configuration_t *>(
-        // TODO: DELETE ENTRIES WHEN CALLED SO NO VALUE IS THERE to avoid wrong values when changes occur but not in arrays up to that slot or so 
-        event_info);
-    unsigned int trailer_id = NULL;
+            // TODO: DELETE ENTRIES WHEN CALLED SO NO VALUE IS THERE to avoid wrong values when changes occur but not in arrays up to that slot or so
+            event_info);
+    unsigned int trailer_id = 0;
     // check which type the event has
     configType type = {};
     if (strcmp(info->id, SCS_TELEMETRY_CONFIG_substances) == 0) {
         type = substances;
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_CONFIG_controls) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_CONFIG_controls) == 0) {
         type = controls;
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_CONFIG_hshifter) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_CONFIG_hshifter) == 0) {
         type = hshifter;
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_CONFIG_truck) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_CONFIG_truck) == 0) {
         type = truck;
-    }
-    else if (strcmp(info->id, SCS_TELEMETRY_CONFIG_job) == 0) {
+    } else if (strcmp(info->id, SCS_TELEMETRY_CONFIG_job) == 0) {
         type = job;
-    }
-    else {
+    } else {
         // check if it is trailer with backwards compatibility
         if (check_max_version(13, 0)) {
             if (strcmp(info->id, SCS_TELEMETRY_CONFIG_trailer) == 0) {
                 type = trailer;
                 trailer_id = 0;
 
-            }
-            else {
+            } else {
                 log_line(SCS_LOG_TYPE_warning, "Something went wrong with this configuration %s", info->id);
             }
             set_trailer_values_zero();
-        }
-        else {
+        } else {
             if (strstr(info->id, SCS_TELEMETRY_CONFIG_trailer)) {
                 if (strcmp(info->id, SCS_TELEMETRY_CONFIG_trailer) == 0) {
                     return;
@@ -684,12 +662,10 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const e
                 trailer_id = last - '0';
                 if (trailer_id > 9 || trailer_id < 0) {
                     log_line(SCS_LOG_TYPE_warning, "Something went wrong while parsing trailer id", info->id);
-                }
-                else {
+                } else {
                     set_trailer_values_zero(trailer_id);
                 }
-            }
-            else {
+            } else {
                 log_line(SCS_LOG_TYPE_warning, "Something went wrong with this configuration %s", info->id);
             }
         }
@@ -711,12 +687,11 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const e
         is_empty = false;
     }
     // if id of config is "job" but without element and we are on a job -> we finished it now
-    if (type == job && is_empty && telem_ptr->special_b.onJob) { 
+    if (type == job && is_empty && telem_ptr->special_b.onJob) {
         telem_ptr->special_b.onJob = false;
         telem_ptr->special_b.jobFinished = true;
         clear_job_ticker = 0;
-    }
-    else if (!telem_ptr->special_b.onJob && type == job && !is_empty) {
+    } else if (!telem_ptr->special_b.onJob && type == job && !is_empty) {
         // oh hey no job but now we have fields in this array so we start a new job
         telem_ptr->special_b.onJob = true;
         telem_ptr->gameplay_ui.jobStartingTime = telem_ptr->common_ui.time_abs;
@@ -725,7 +700,7 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t event, const void* const e
 }
 
 /******* STORING OF SEVERAL SCS DATA TYPES *******/
-SCSAPI_VOID telemetry_store_float(const scs_string_t name, const scs_u32_t index, const scs_value_t* const value,
+SCSAPI_VOID telemetry_store_float(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value,
                                   scs_context_t context) {
     if (!value) return;
     assert(value);
@@ -734,7 +709,7 @@ SCSAPI_VOID telemetry_store_float(const scs_string_t name, const scs_u32_t index
     *static_cast<float *>(context) = value->value_float.value;
 }
 
-SCSAPI_VOID telemetry_store_s32(const scs_string_t name, const scs_u32_t index, const scs_value_t* const value,
+SCSAPI_VOID telemetry_store_s32(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value,
                                 scs_context_t context) {
     if (!value) return;
     assert(value);
@@ -743,7 +718,7 @@ SCSAPI_VOID telemetry_store_s32(const scs_string_t name, const scs_u32_t index, 
     *static_cast<int *>(context) = value->value_s32.value;
 }
 
-SCSAPI_VOID telemetry_store_u32(const scs_string_t name, const scs_u32_t index, const scs_value_t* const value,
+SCSAPI_VOID telemetry_store_u32(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value,
                                 scs_context_t context) {
     if (!value) return;
     assert(value);
@@ -752,23 +727,21 @@ SCSAPI_VOID telemetry_store_u32(const scs_string_t name, const scs_u32_t index, 
     *static_cast<unsigned int *>(context) = value->value_u32.value;
 }
 
-SCSAPI_VOID telemetry_store_bool(const scs_string_t name, const scs_u32_t index, const scs_value_t* const value,
+SCSAPI_VOID telemetry_store_bool(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value,
                                  scs_context_t context) {
     if (!context) return;
     if (value) {
         if (value->value_bool.value == 0) {
             *static_cast<bool *>(context) = false;
-        }
-        else {
+        } else {
             *static_cast<bool *>(context) = true;
         }
-    }
-    else {
+    } else {
         *static_cast<bool *>(context) = false;
     }
 }
 
-SCSAPI_VOID telemetry_store_fvector(const scs_string_t name, const scs_u32_t index, const scs_value_t* const value,
+SCSAPI_VOID telemetry_store_fvector(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value,
                                     scs_context_t context) {
     if (!value) return;
     assert(value);
@@ -779,7 +752,7 @@ SCSAPI_VOID telemetry_store_fvector(const scs_string_t name, const scs_u32_t ind
     *(static_cast<float *>(context) + 2) = value->value_fvector.z;
 }
 
-SCSAPI_VOID telemetry_store_dplacement(const scs_string_t name, const scs_u32_t index, const scs_value_t* const value,
+SCSAPI_VOID telemetry_store_dplacement(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value,
                                        scs_context_t context) {
     if (!value) return;
     assert(value);
@@ -798,7 +771,7 @@ SCSAPI_VOID telemetry_store_dplacement(const scs_string_t name, const scs_u32_t 
 
 }
 
-SCSAPI_VOID telemetry_store_fplacement(const scs_string_t name, const scs_u32_t index, const scs_value_t* const value,
+SCSAPI_VOID telemetry_store_fplacement(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value,
                                        scs_context_t context) {
     if (!value) return;
     assert(value);
@@ -823,20 +796,20 @@ SCSAPI_VOID telemetry_store_fplacement(const scs_string_t name, const scs_u32_t 
  * See scssdk_telemetry.h
  */
 
-SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_init_params_t* const params) {
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
+SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_init_params_t *const params) {
     // We currently support only two version.
-    //TODO test this first test seems to work 
-    const scs_telemetry_init_params_v100_t* version_params;
+    //TODO test this first test seems to work
+    const scs_telemetry_init_params_v100_t *version_params;
     if (version == SCS_TELEMETRY_VERSION_1_00) {
         version_params = static_cast<const scs_telemetry_init_params_v100_t *>(params);
         // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
-    }
-    else if (version == SCS_TELEMETRY_VERSION_1_01) {
+    } else if (version == SCS_TELEMETRY_VERSION_1_01) {
         version_params = static_cast<const scs_telemetry_init_params_v101_t *>(params);
         // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
-    }
-    else {
+    } else {
         return SCS_RESULT_unsupported;
     }
 
@@ -846,9 +819,11 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
         return SCS_RESULT_generic_error;
     }
 #if LOGGING
-	log_line("LOGGING is active find at %s", logger::path.c_str());
-	logger::out << "start logging" << '\n';
+    log_line("LOGGING is active find at %s", logger::path.c_str());
+    logger::out << "start logging" << '\n';
 #endif
+
+    log_line("INIT!!");
 
     /*** ACQUIRE SHARED MEMORY BUFFER ***/
     telem_mem = new SharedMemory(scs_mmf_name, SCS_PLUGIN_MMF_SIZE);
@@ -861,7 +836,7 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
         return SCS_RESULT_generic_error;
     }
 
-    telem_ptr = static_cast<scsTelemetryMap_t*>(telem_mem->GetBuffer());
+    telem_ptr = static_cast<scsTelemetryMap_t *>(telem_mem->GetBuffer());
 
     if (telem_ptr == nullptr) {
         return SCS_RESULT_generic_error;
@@ -881,18 +856,16 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     if (strcmp(version_params->common.game_id, SCS_GAME_ID_EUT2) == 0) {
         telem_ptr->scs_values.game = ETS2;
         telem_ptr->scs_values.telemetry_version_game_major = SCS_GET_MAJOR_VERSION(
-            SCS_TELEMETRY_EUT2_GAME_VERSION_CURRENT);
+                SCS_TELEMETRY_EUT2_GAME_VERSION_CURRENT);
         telem_ptr->scs_values.telemetry_version_game_minor = SCS_GET_MINOR_VERSION(
-            SCS_TELEMETRY_EUT2_GAME_VERSION_CURRENT);
-    }
-    else if (strcmp(version_params->common.game_id, SCS_GAME_ID_ATS) == 0) {
+                SCS_TELEMETRY_EUT2_GAME_VERSION_CURRENT);
+    } else if (strcmp(version_params->common.game_id, SCS_GAME_ID_ATS) == 0) {
         telem_ptr->scs_values.game = ATS;
         telem_ptr->scs_values.telemetry_version_game_major = SCS_GET_MAJOR_VERSION(
-            SCS_TELEMETRY_ATS_GAME_VERSION_CURRENT);
+                SCS_TELEMETRY_ATS_GAME_VERSION_CURRENT);
         telem_ptr->scs_values.telemetry_version_game_minor = SCS_GET_MINOR_VERSION(
-            SCS_TELEMETRY_ATS_GAME_VERSION_CURRENT);
-    }
-    else {
+                SCS_TELEMETRY_ATS_GAME_VERSION_CURRENT);
+    } else {
         // unknown game
 
         log_line(SCS_LOG_TYPE_error, "Unknown Game SDK will not work correctly");
@@ -906,10 +879,10 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
 
     /*** REGISTER GAME EVENTS (Pause/Unpause/Start/Time) ***/
     const auto events_registered =
-        version_params->register_for_event(SCS_TELEMETRY_EVENT_frame_start, telemetry_frame_start, nullptr) ==
-        SCS_RESULT_ok &&
-        version_params->register_for_event(SCS_TELEMETRY_EVENT_paused, telemetry_pause, nullptr) == SCS_RESULT_ok &&
-        version_params->register_for_event(SCS_TELEMETRY_EVENT_started, telemetry_pause, nullptr) == SCS_RESULT_ok;
+            version_params->register_for_event(SCS_TELEMETRY_EVENT_frame_start, telemetry_frame_start, nullptr) ==
+            SCS_RESULT_ok &&
+            version_params->register_for_event(SCS_TELEMETRY_EVENT_paused, telemetry_pause, nullptr) == SCS_RESULT_ok &&
+            version_params->register_for_event(SCS_TELEMETRY_EVENT_started, telemetry_pause, nullptr) == SCS_RESULT_ok;
 
     // Register configuration event, because it sends data like truck make, etc.
     version_params->register_for_event(SCS_TELEMETRY_EVENT_configuration, telemetry_configuration, nullptr);
@@ -1021,7 +994,7 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
         REGISTER_CHANNEL_INDEX(TRUCK_CHANNEL_wheel_steering, float, telem_ptr->truck_f.truck_wheelSteering[i], i);
         REGISTER_CHANNEL_INDEX(TRUCK_CHANNEL_wheel_rotation, float, telem_ptr->truck_f.truck_wheelRotation[i], i);
         REGISTER_CHANNEL_INDEX(TRUCK_CHANNEL_wheel_susp_deflection, float, telem_ptr->truck_f.
-                               truck_wheelSuspDeflection[i], i);
+                truck_wheelSuspDeflection[i], i);
         REGISTER_CHANNEL_INDEX(TRUCK_CHANNEL_wheel_lift, float, telem_ptr->truck_f.truck_wheelLift[i], i);
         REGISTER_CHANNEL_INDEX(TRUCK_CHANNEL_wheel_lift_offset, float, telem_ptr->truck_f.truck_wheelLiftOffset[i], i
         );
@@ -1137,6 +1110,8 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     return SCS_RESULT_ok;
 }
 
+#pragma clang diagnostic pop
+
 
 /**
  * @brief Telemetry API deinitialization function.
@@ -1145,22 +1120,26 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
  */
 SCSAPI_VOID scs_telemetry_shutdown() {
 #if LOGGING
-	logger::flush();
+    logger::flush();
 #endif
-    // Close MemoryMap
-    telem_ptr->sdkActive = false;
-    telem_ptr->scs_values.game = 0;
-    telem_ptr->scs_values.telemetry_plugin_revision = 0;
-    telem_ptr->scs_values.telemetry_version_game_major = 0;
-    telem_ptr->scs_values.telemetry_version_game_minor = 0;
-    telem_ptr->scs_values.version_major = 0;
-    telem_ptr->scs_values.version_minor = 0;
+    if (telem_ptr != nullptr) {
+        // Close MemoryMap
+        telem_ptr->sdkActive = false;
+        telem_ptr->paused = true;
+        telem_ptr->truck_f.speed = 0;
+        telem_ptr->scs_values.game = 0;
+        telem_ptr->scs_values.telemetry_plugin_revision = 0;
+        telem_ptr->scs_values.telemetry_version_game_major = 0;
+        telem_ptr->scs_values.telemetry_version_game_minor = 0;
+        telem_ptr->scs_values.version_major = 0;
+        telem_ptr->scs_values.version_minor = 0;
 
-    telem_ptr->time = 0;
-    telem_ptr->simulatedTime = 0;
-    telem_ptr->renderTime = 0;
-    telem_ptr->common_ui.time_abs = 0;
-    telem_ptr->common_f.scale = 0;
+        telem_ptr->time = 0;
+        telem_ptr->simulatedTime = 0;
+        telem_ptr->renderTime = 0;
+        telem_ptr->common_ui.time_abs = 0;
+        telem_ptr->common_f.scale = 0;
+    }
 
     if (telem_mem != nullptr) {
         telem_mem->Close();
@@ -1169,16 +1148,28 @@ SCSAPI_VOID scs_telemetry_shutdown() {
 
 // Telemetry api.
 
-// ReSharper disable once CppInconsistentNaming
+//unload
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+#ifdef _WIN32
 BOOL APIENTRY DllMain(
     HMODULE module,
-    DWORD reason_for_call,
+    DWORD  reason_for_call,
     LPVOID reseved
-) {
+)
+{
     if (reason_for_call == DLL_PROCESS_DETACH) {
-
         scs_telemetry_shutdown();
-
     }
     return TRUE;
 }
+#endif
+
+#ifdef __linux__
+
+void __attribute__ ((destructor)) unload() {
+    scs_telemetry_shutdown();
+}
+
+#endif
+#pragma clang diagnostic pop
