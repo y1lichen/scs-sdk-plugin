@@ -7,19 +7,19 @@
     <img alt="" src="https://img.shields.io/badge/Discord-blue.svg?style=for-the-badge" />
   </a>
 
-fork of [nlhans](https://github.com/nlhans/ets2-sdk-plugin) work
+fork of [nlhans](https://github.com/nlhans/ets2-sdk-plugin) and [RenCloud](https://github.com/RenCloud/scs-sdk-plugin) work, adapted to work on Linux.
 
 # SCS Telemetry for EuroTruckSimulator 2 and AmericanTruckSimulator
 
 SCS has kindly released a SDK that allows developers and users to stream telemetry data from the game to any 3rd party applications. An example program was provided (and often used) which enabled streaming data by using text files stored on the users harddisk. This puts unnecessary stress on the users harddrive (not the mention the number of re-writes that would hurt SSDs), and moreover requires the user to manually configure the telemetry data source.
 
-This SDK plug-in transports the telemetry stream via a Memory Mapped File. This is a special Windows (file)stream which resides completely in RAM and can be read from multiple applications.
+This SDK plug-in transports the telemetry stream via a Memory Mapped File. This uses Linux's `mmap` and `/dev/shm` which resides completely in RAM and can be read from multiple applications.
 
 ## Installation
 
 Actually you need to build this branch yourself. I will add a release later. Stay tuned for more information.
 
-Installation is easy inside Euro Truck Simulator 2. Place the acquired DLL inside bin/win_x64/plugins/ of your ETS2/ATS installation. It is possible the plugins directory doesn't exists yet (as with every default installation). In that case you need to create the plugins folder. Place the DLL inside the plugins folder.
+Installation is easy inside Euro Truck Simulator 2. Place the acquired so file inside bin/linux_x64/plugins/ of your ETS2/ATS installation. It is possible the plugins directory doesn't exists yet (as with every default installation). In that case you need to create the plugins folder. Place the so file inside the plugins folder.
 
 You will now notice that each time ETS2/ATS now starts it prompts the SDK has been activated. Unfortunately you have to press OK to this message every time, but it's a small price to pay for the added features that are possible via the SDK.
 
@@ -383,6 +383,12 @@ Actually I'm not fully happy with the actual demo. But I didn't reached my plan 
 ### Javascript
 
 If you want to use javascript have a look here [Kniffen TruckSim-Telemetry](https://github.com/kniffen/TruckSim-Telemetry).
+
+### Python
+
+There's a simply incomplete client for Python that I wrote for my purposes, it contains most major fields like speed, acceleration, and game/truck status. It's done using Python's `struct`, and you should be able to adapt it easily to include more fields. For details, see Python's [documentation](https://docs.python.org/3/library/struct.html)
+
+Usage: initialize a `SCSSdkClient` instance to open the mmap file, then call `update()` to read from the file and update the values. `printall()` is a convenient function to print all available fields.
 
 ### Other
 
