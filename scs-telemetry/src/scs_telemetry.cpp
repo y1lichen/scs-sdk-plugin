@@ -823,7 +823,7 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     logger::out << "start logging" << '\n';
 #endif
 
-    log_line("INIT!!");
+    log_line("Initializing SCS SDK Plugin...");
 
     /*** ACQUIRE SHARED MEMORY BUFFER ***/
     telem_mem = new SharedMemory(scs_mmf_name, SCS_PLUGIN_MMF_SIZE);
@@ -833,6 +833,7 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     }
 
     if (!telem_mem->Hooked()) {
+        log_line(telem_mem->errReason);
         return SCS_RESULT_generic_error;
     }
 
@@ -1106,6 +1107,8 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
 
     timestamp = static_cast<scs_timestamp_t>(0);
     last_timestamp = static_cast<scs_timestamp_t>(-1);
+
+    log_line("SCS SDK Plugin Initialized!");
 
     return SCS_RESULT_ok;
 }

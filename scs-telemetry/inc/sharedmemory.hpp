@@ -34,7 +34,7 @@ protected:
     void LogError(const char *logPtr);
 
 public:
-    bool Hooked() { return isSharedMemoryHooked; }
+    bool Hooked() const { return isSharedMemoryHooked; }
 
     void *GetBuffer() { return pBufferPtr; }
 
@@ -44,6 +44,7 @@ public:
 
     void *getPtrAt(int offset) { return (void *) &(((unsigned char *) pBufferPtr)[offset]); }
 
+    const char *errReason{};
 
 };
 
