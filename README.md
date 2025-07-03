@@ -19,6 +19,13 @@ This SDK plug-in transports the telemetry stream via a Memory Mapped File. This 
 
 Actually you need to build this branch yourself. I will add a release later. Stay tuned for more information.
 
+```
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+
 Installation is easy inside Euro Truck Simulator 2. Place the acquired so file inside bin/linux_x64/plugins/ of your ETS2/ATS installation. It is possible the plugins directory doesn't exists yet (as with every default installation). In that case you need to create the plugins folder. Place the so file inside the plugins folder.
 
 You will now notice that each time ETS2/ATS now starts it prompts the SDK has been activated. Unfortunately you have to press OK to this message every time, but it's a small price to pay for the added features that are possible via the SDK.
