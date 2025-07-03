@@ -37,6 +37,8 @@
 SharedMemory *telem_mem;
 scsTelemetryMap_t *telem_ptr;
 
+static scs_timestamp_t last_clear_event_time = 0;
+
 // const: scs_mmf_name
 // Name/Location of the Shared Memory
 const char *scs_mmf_name = SCS_PLUGIN_MMF_NAME;
@@ -379,13 +381,7 @@ static auto start_fuel = 0.0f;
 // Register telemetry values
 SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void *const event_info,
                                   scs_context_t UNUSED(context)) {
-
     const auto info = static_cast<const scs_telemetry_frame_start_t *>(event_info);
-    // The following processing of the timestamps is done so the output
-    // from this plugin has continuous time, it is not necessary otherwise.
-
-    // When we just initialized itself, assume that the time started
-    // just now.
 
     if (last_timestamp == static_cast<scs_timestamp_t>(-1)) {
         last_timestamp = info->paused_simulation_time;
@@ -397,16 +393,11 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void *c
         last_rendertimestamp = info->render_time;
     }
 
-    // The timer might be sometimes restarted (e.g. after load) while
-    // we want to provide continuous time on our output.
-
     if (info->flags & SCS_TELEMETRY_FRAME_START_FLAG_timer_restart) {
         last_timestamp = 0;
         last_simulatedtimestamp = 0;
         last_rendertimestamp = 0;
     }
-
-    // Advance the timestamp by delta since last frame.
 
     timestamp += info->paused_simulation_time - last_timestamp;
     simulatedtimestamp += info->simulation_time - last_simulatedtimestamp;
@@ -415,132 +406,91 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void *c
     last_simulatedtimestamp = info->simulation_time;
     last_rendertimestamp = info->render_time;
 
-    /* Copy over the game timestamp to our telemetry memory */
     if (telem_ptr != nullptr) {
         telem_ptr->time = static_cast<unsigned long long>(timestamp);
         telem_ptr->simulatedTime = static_cast<unsigned long long>(simulatedtimestamp);
         telem_ptr->renderTime = static_cast<unsigned long long>(rendertimestamp);
 
-        // Do a non-convential periodic update of this field:
         telem_ptr->truck_b.cruiseControl = telem_ptr->truck_f.cruiseControlSpeed > 0;
 
-        // check fuel value
         current_fuel_value = telem_ptr->truck_f.fuel;
 
         if (!refuel) {
             start_fuel = fuel_tmp;
             fuel_tmp = telem_ptr->truck_f.fuel;
         }
+
         if (current_fuel_value > last_fuel_value && last_fuel_value > 0) {
-            fuel_ticker2 = 0;
             telem_ptr->special_b.refuel = true;
             if (!refuel) {
                 refuel = true;
-                clear_refuel_payed_ticker = 0;
-
             }
         } else if (current_fuel_value < last_fuel_value) {
-            fuel_ticker2 = 0;
             telem_ptr->special_b.refuel = false;
         }
 
-        // refuel is true, but engine is now active? than refuel is finished and payed, fire event   
         if (refuel && telem_ptr->truck_b.engineEnabled) {
             refuel = false;
-
             telem_ptr->gameplay_f.refuelAmount = telem_ptr->truck_f.fuel - start_fuel;
             telem_ptr->special_b.refuelPayed = true;
-
         }
 
-        // update last value every few ticks (refuel rate is not constant and the plugin side did check every 25 ms so to try a
-        // constant refuel event for the whole time a few strange things :D atm
-        if (fuel_ticker > 10) {
-            fuel_ticker = 0;
-
-            if (current_fuel_value == last_fuel_value) {
-                fuel_ticker2++;
-            } else {
-                fuel_ticker2 = 0;
-            }
+        if (current_fuel_value == last_fuel_value) {
+            fuel_ticker2++;
             if (fuel_ticker2 >= 5) {
                 fuel_ticker2 = 0;
                 telem_ptr->special_b.refuel = false;
             }
-
+        } else {
+            fuel_ticker2 = 0;
         }
-        fuel_ticker++;
+
         last_fuel_value = current_fuel_value;
 
+        // === 每 500ms 檢查一次 flags 是否該清除 ===
+        const scs_timestamp_t now_ms = timestamp;
+        if (now_ms - last_clear_event_time >= 500) {
+            last_clear_event_time = now_ms;
 
-        //TODO: better way for that mess here
-        if (telem_ptr->special_b.jobFinished) {
-            clear_job_ticker++;
-
-            if (telem_ptr->special_b.jobCancelled) {
-                clear_cancelled_ticker++;
-
-                if (clear_cancelled_ticker > 10) {
-                    set_job_values_zero();
-                    telem_ptr->special_b.jobCancelled = false;
-                    telem_ptr->special_b.jobFinished = false;
-                }
-            } else if (telem_ptr->special_b.jobDelivered) {
-                clear_delivered_ticker++;
-
-                if (clear_delivered_ticker > 10) {
-                    set_job_values_zero();
-                    telem_ptr->special_b.jobDelivered = false;
-                    telem_ptr->special_b.jobFinished = false;
-                }
-            } else {
-                // job is cancelled -> user input
-                // job is delivered -> user
-                // this case ? seems to be called the first time the user leaves the profile
-                // else there should no case (i hope and think atm so)
-                if (clear_job_ticker > 10) {
-                    set_job_values_zero();
-                    telem_ptr->special_b.jobFinished = false;
-                }
-            }
-        }
-        if (telem_ptr->special_b.refuelPayed) {
-            clear_refuel_payed_ticker++;
-
-            if (clear_refuel_payed_ticker > 10) {
+            // Clear refuelPayed
+            if (telem_ptr->special_b.refuelPayed) {
                 telem_ptr->special_b.refuelPayed = false;
             }
-        }
-        if (telem_ptr->special_b.fined) {
-            clear_fined_ticker++;
 
-            if (clear_fined_ticker > 10) {
+            // Clear fined
+            if (telem_ptr->special_b.fined) {
                 telem_ptr->special_b.fined = false;
             }
-        }
-        if (telem_ptr->special_b.tollgate) {
-            clear_tollgate_ticker++;
 
-            if (clear_tollgate_ticker > 10) {
+            // Clear tollgate
+            if (telem_ptr->special_b.tollgate) {
                 telem_ptr->special_b.tollgate = false;
             }
-        }
-        if (telem_ptr->special_b.ferry) {
-            clear_ferry_ticker++;
 
-            if (clear_ferry_ticker > 10) {
+            // Clear ferry
+            if (telem_ptr->special_b.ferry) {
                 telem_ptr->special_b.ferry = false;
             }
-        }
-        if (telem_ptr->special_b.train) {
-            clear_train_ticker++;
 
-            if (clear_train_ticker > 10) {
+            // Clear train
+            if (telem_ptr->special_b.train) {
                 telem_ptr->special_b.train = false;
+            }
+
+            // Clear job finished
+            if (telem_ptr->special_b.jobFinished) {
+                if (telem_ptr->special_b.jobCancelled || telem_ptr->special_b.jobDelivered) {
+                    set_job_values_zero();
+                    telem_ptr->special_b.jobCancelled = false;
+                    telem_ptr->special_b.jobDelivered = false;
+                    telem_ptr->special_b.jobFinished = false;
+                } else {
+                    // fallback case
+                    telem_ptr->special_b.jobFinished = false;
+                }
             }
         }
     }
-
 }
 
 // Function: telemetry_pause
