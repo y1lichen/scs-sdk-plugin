@@ -37,6 +37,6 @@ add_library(scs_sdk_plugin SHARED
 set_target_properties(scs_sdk_plugin PROPERTIES SUFFIX ".so")
 
 add_executable(test
-        scs_sdk_1_12/include/scssdk_value.h scs-telemetry/src/test.cpp)
+        scs_sdk_1_14/include/scssdk_value.h scs-telemetry/src/test.cpp)
 
 target_link_libraries(test scs_sdk_plugin)
