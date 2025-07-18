@@ -3,7 +3,18 @@ project(scs_sdk_plugin)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "-fPIC -Wall")
-set(CMAKE_SHARED_LINKER_FLAGS, "-Wl,-soname,scs_sdk_plugin.so")
+
+# Linux only: set soname
+if(UNIX AND NOT APPLE)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-soname,scs_sdk_plugin.so")
+endif()
+
+# Platform-specific library suffix
+if(APPLE)
+    set(LIB_SUFFIX ".dylib")
+elseif(UNIX)
+    set(LIB_SUFFIX ".so")
+endif()
 
 include_directories(scs-telemetry/inc)
 include_directories(scs_sdk_1_14/include)
@@ -34,9 +45,12 @@ add_library(scs_sdk_plugin SHARED
         scs_sdk_1_14/include/scssdk_telemetry_channel.h
         scs_sdk_1_14/include/scssdk_telemetry_event.h)
 
-set_target_properties(scs_sdk_plugin PROPERTIES SUFFIX ".so")
+# Apply correct suffix based on platform
+set_target_properties(scs_sdk_plugin PROPERTIES SUFFIX "${LIB_SUFFIX}")
 
+# Add test executable
 add_executable(test
-        scs_sdk_1_14/include/scssdk_value.h scs-telemetry/src/test.cpp)
+        scs_sdk_1_14/include/scssdk_value.h
+        scs-telemetry/src/test.cpp)
 
 target_link_libraries(test scs_sdk_plugin)
