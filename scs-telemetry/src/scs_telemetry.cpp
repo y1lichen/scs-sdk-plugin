@@ -447,9 +447,9 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t UNUSED(event), const void *c
 
         last_fuel_value = current_fuel_value;
 
-        // === 每 500ms 檢查一次 flags 是否該清除 ===
+        // === 每 250ms 檢查一次 flags 是否該清除 ===
         const scs_timestamp_t now_ms = timestamp;
-        if (now_ms - last_clear_event_time >= 500) {
+        if (now_ms - last_clear_event_time >= 250) {
             last_clear_event_time = now_ms;
 
             // Clear refuelPayed
