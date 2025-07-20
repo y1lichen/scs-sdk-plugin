@@ -22,8 +22,14 @@
 #endif
 
 #include "scssdk.h"
-
+#ifdef __APPLE__
+// macOS 使用 /tmp
+#define SCS_PLUGIN_MMF_NAME "/tmp/SCS/SCSTelemetry"
+#elif defined(__linux__)
+// Linux 使用 /dev/shm
 #define SCS_PLUGIN_MMF_NAME "/dev/shm/SCS/SCSTelemetry"
+#endif
+
 #define SCS_PLUGIN_MMF_SIZE (32*1024)
 /**
  * \brief string size for all strings (most of them) the amount of fields in the shared memory field

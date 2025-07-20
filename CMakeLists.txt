@@ -12,6 +12,7 @@ endif()
 # Platform-specific library suffix
 if(APPLE)
     set(LIB_SUFFIX ".dylib")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64")
 elseif(UNIX)
     set(LIB_SUFFIX ".so")
 endif()

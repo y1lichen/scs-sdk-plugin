@@ -48,11 +48,14 @@ SharedMemory::SharedMemory(const char *newNamePtr, unsigned int size) {
     }
 
     // Full file path for mmap file
-    std::string fullPath = std::string(shmDir) + "/" + newNamePtr;
+    std::string fullPath = newNamePtr;
 
     hMapFile = open(fullPath.c_str(), O_CREAT | O_RDWR, 0777);
+    LogError(("Trying to open file at: " + fullPath).c_str());
     if (hMapFile == -1) {
-        LogError("Unable to open mmap file");
+        std::string err = "Unable to open mmap file: ";
+        err += strerror(errno);
+        LogError(err.c_str());
         return;
     }
 
